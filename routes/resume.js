@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const resumeController = require('../controllers/resumeController');
+const resumeController = require('../controllers/resumeControllers');
 
 // Resume builder form page
 router.get('/builder', resumeController.getBuilderPage);

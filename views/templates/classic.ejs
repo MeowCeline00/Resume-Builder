@@ -1,0 +1,39 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Classic - <%= resume.personalInfo.name %></title>
+  <link rel="stylesheet" href="/css/templates/classic.css">
+</head>
+<body>
+  <header>
+    <h1><%= resume.personalInfo.name %></h1>
+    <p><%= resume.personalInfo.jobTitle %></p>
+  </header>
+
+  <section>
+    <h2>Contact Info</h2>
+    <p>Email: <%= resume.personalInfo.email %></p>
+    <p>Phone: <%= resume.personalInfo.phone %></p>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    <% resume.experience.forEach(exp => { %>
+      <p><%= exp.position %> - <%= exp.company %> (<%= exp.year %>)</p>
+    <% }); %>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <% resume.education.forEach(edu => { %>
+      <p><%= edu.degree %>, <%= edu.school %> (<%= edu.year %>)</p>
+    <% }); %>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
+    <p><%= resume.skills.technical.join(', ') %></p>
+  </section>
+</body>
+</html> -->
