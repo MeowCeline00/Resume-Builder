@@ -1,255 +1,167 @@
 const Resume = require('../models/Resume');
 const pdfGenerator = require('../utils/pdfGenerator');
 
+function safeParseJSON(data) {
+    try {
+        return typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (e) {
+        console.error("Error parsing JSON:", e);
+        return {};
+    }
+}
+
 const resumeController = {
-  // Render the resume builder page
-  getBuilderPage: (req, res) => {
-    res.render('builder', {
-      title: 'Build Your Resume',
-      edit: false,
-      resumeData: {
-        personalInfo: {},
-        education: [{}],
-        experience: [{}],
-        skills: {
-          technical: [],
-          soft: []
+    getAllResumes: async (req, res) => {
+        try {
+            const resumes = await Resume.getAll() || [];
+            const resumeList = resumes.map(resume => ({
+                id: resume.id,
+                name: safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
+                templateName: resume.template_name,
+                createdAt: new Date(resume.created_at).toLocaleDateString()
+            }));
+            res.render('resume-list', { title: 'Resumes', resumes: resumeList });
+        } catch (error) {
+            console.error('Error fetching resumes:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to load resumes' });
         }
-      }
-    });
-  },
+    },
 
-  // Create a new resume
-  createResume: async (req, res) => {
-    try {
-      const resumeData = {
-        personalInfo: req.body.personalInfo,
-        education: req.body.education || [{}],
-        experience: req.body.experience || [{}],
-        skills: req.body.skills || { technical: [], soft: [] },
-        templateName: req.body.templateName || 'modern'
-      };
+    getBuilderPage: async (req, res) => {
+        try {
+            const resumes = await Resume.getAll() || [];
+            res.render('builder', {
+                title: 'Resume Builder',
+                resumes: resumes.map(resume => ({
+                    id: resume.id,
+                    name: safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
+                    updatedAt: new Date(resume.updated_at).toLocaleDateString()
+                }))
+            });
+        } catch (error) {
+            console.error('Error loading builder page:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to load builder page' });
+        }
+    },
 
-      const newResume = await Resume.create(resumeData);
-      res.redirect(`/resume/preview/${newResume.id}`);
-    } catch (error) {
-      console.error('Error creating resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to create resume' 
-      });
-    }
-  },
-
-  // Preview a resume
-  previewResume: async (req, res) => {
-    try {
-      const resume = await Resume.getById(req.params.id);
-      
-      if (!resume) {
-        return res.status(404).render('error', { 
-          title: 'Not Found',
-          message: 'Resume not found' 
+    getNewResumePage: (req, res) => {
+        res.render('new-resume', {
+            title: 'Create New Resume',
+            resumeData: {
+                personalInfo: {},
+                education: [{}],
+                experience: [{}],
+                skills: { technical: [], soft: [] }
+            }
         });
-      }
+    },
 
-      // Parse JSON strings into objects if needed
-      const resumeData = {
-        id: resume.id,
-        personalInfo: typeof resume.personal_info === 'string' ? JSON.parse(resume.personal_info) : resume.personal_info,
-        education: typeof resume.education === 'string' ? JSON.parse(resume.education) : resume.education,
-        experience: typeof resume.experience === 'string' ? JSON.parse(resume.experience) : resume.experience,
-        skills: typeof resume.skills === 'string' ? JSON.parse(resume.skills) : resume.skills,
-        templateName: resume.template_name
-      };
+    createResume: async (req, res) => {
+        try {
+            const resumeData = {
+                personalInfo: req.body.personalInfo,
+                education: req.body.education || [{}],
+                experience: req.body.experience || [{}],
+                skills: req.body.skills || { technical: [], soft: [] },
+                templateName: req.body.templateName || 'modern'
+            };
+            const newResume = await Resume.create(resumeData);
+            res.redirect(`/resume/edit/${newResume.id}`);
+        } catch (error) {
+            console.error('Error creating resume:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to create resume' });
+        }
+    },
 
-      res.render(`templates/${resumeData.templateName}`, {
-        title: 'Resume Preview',
-        resume: resumeData
-      });
-    } catch (error) {
-      console.error('Error previewing resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to load resume preview' 
-      });
+    getEditPage: async (req, res) => {
+        try {
+            const resume = await Resume.getById(req.params.id);
+            res.render('edit-resume', {
+                title: 'Edit Resume',
+                resumeData: {
+                    id: resume.id,
+                    personalInfo: safeParseJSON(resume.personal_info),
+                    education: safeParseJSON(resume.education),
+                    experience: safeParseJSON(resume.experience),
+                    skills: safeParseJSON(resume.skills),
+                    templateName: resume.template_name
+                }
+            });
+        } catch (error) {
+            console.error('Error loading edit page:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to load edit page' });
+        }
+    },
+
+    updateResume: async (req, res) => {
+        try {
+            const resumeData = {
+                personalInfo: req.body.personalInfo,
+                education: req.body.education || [{}],
+                experience: req.body.experience || [{}],
+                skills: req.body.skills || { technical: [], soft: [] },
+                templateName: req.body.templateName || 'modern'
+            };
+            const updatedResume = await Resume.update(req.params.id, resumeData);
+            res.redirect(`/resume/edit/${updatedResume.id}`);
+        } catch (error) {
+            console.error('Error updating resume:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to update resume' });
+        }
+    },
+
+    deleteResume: async (req, res) => {
+        try {
+            await Resume.delete(req.params.id);
+            res.redirect('/resume/list');
+        } catch (error) {
+            console.error('Error deleting resume:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to delete resume' });
+        }
+    },
+
+    previewResume: async (req, res) => {
+        try {
+            const resume = await Resume.getById(req.params.id);
+            if (!resume) {
+                return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
+            }
+
+            const resumeData = {
+                id: resume.id,
+                personalInfo: safeParseJSON(resume.personal_info),
+                education: safeParseJSON(resume.education),
+                experience: safeParseJSON(resume.experience),
+                skills: safeParseJSON(resume.skills),
+                templateName: resume.template_name
+            };
+
+            res.render(`templates/${resumeData.templateName}`, { title: 'Resume Preview', resume: resumeData });
+        } catch (error) {
+            console.error('Error previewing resume:', error);
+            res.status(500).render('error', { title: 'Error', message: 'Failed to load resume preview' });
+        }
+    },
+
+    downloadResume: async (req, res) => {
+        try {
+            const resume = await Resume.getById(req.params.id);
+            const resumeData = {
+                id: resume.id,
+                personalInfo: safeParseJSON(resume.personal_info),
+                education: safeParseJSON(resume.education),
+                experience: safeParseJSON(resume.experience),
+                skills: safeParseJSON(resume.skills),
+                templateName: resume.template_name
+            };
+            const pdfBuffer = await pdfGenerator.generatePDF(resumeData);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=${resumeData.personalInfo.name}_resume.pdf`);
+            res.send(pdfBuffer);
+        } catch (error) {
+            console.error('Error downloading resume:', error);
+        }
     }
-  },
-
-  // Get the PDF-like editor page
-  getEditPreviewPage: async (req, res) => {
-    try {
-      const resume = await Resume.getById(req.params.id);
-      
-      if (!resume) {
-        return res.status(404).render('error', { 
-          title: 'Not Found',
-          message: 'Resume not found' 
-        });
-      }
-
-      // Parse JSON strings into objects if needed
-      const resumeData = {
-        id: resume.id,
-        personalInfo: typeof resume.personal_info === 'string' ? JSON.parse(resume.personal_info) : resume.personal_info,
-        education: typeof resume.education === 'string' ? JSON.parse(resume.education) : resume.education,
-        experience: typeof resume.experience === 'string' ? JSON.parse(resume.experience) : resume.experience,
-        skills: typeof resume.skills === 'string' ? JSON.parse(resume.skills) : resume.skills,
-        templateName: resume.template_name
-      };
-
-      res.render('edit-preview', {
-        title: 'Edit PDF Preview',
-        resume: resumeData
-      });
-    } catch (error) {
-      console.error('Error loading edit preview page:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to load edit preview page' 
-      });
-    }
-  },
-
-  // Get the edit page for a resume
-  getEditPage: async (req, res) => {
-    try {
-      const resume = await Resume.getById(req.params.id);
-      
-      if (!resume) {
-        return res.status(404).render('error', { 
-          title: 'Not Found',
-          message: 'Resume not found' 
-        });
-      }
-
-      // Parse JSON strings into objects if needed
-      const resumeData = {
-        id: resume.id,
-        personalInfo: typeof resume.personal_info === 'string' ? JSON.parse(resume.personal_info) : resume.personal_info,
-        education: typeof resume.education === 'string' ? JSON.parse(resume.education) : resume.education,
-        experience: typeof resume.experience === 'string' ? JSON.parse(resume.experience) : resume.experience,
-        skills: typeof resume.skills === 'string' ? JSON.parse(resume.skills) : resume.skills,
-        templateName: resume.template_name
-      };
-
-      res.render('builder', {
-        title: 'Edit Your Resume',
-        edit: true,
-        resumeData
-      });
-    } catch (error) {
-      console.error('Error loading edit page:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to load edit page' 
-      });
-    }
-  },
-
-  // Update a resume
-  updateResume: async (req, res) => {
-    try {
-      const resumeData = {
-        personalInfo: req.body.personalInfo,
-        education: req.body.education || [{}],
-        experience: req.body.experience || [{}],
-        skills: req.body.skills || { technical: [], soft: [] },
-        templateName: req.body.templateName || 'modern'
-      };
-
-      const updatedResume = await Resume.update(req.params.id, resumeData);
-      res.redirect(`/resume/preview/${updatedResume.id}`);
-    } catch (error) {
-      console.error('Error updating resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to update resume' 
-      });
-    }
-  },
-
-  // Delete a resume
-  deleteResume: async (req, res) => {
-    try {
-      await Resume.delete(req.params.id);
-      res.redirect('/resume/list');
-    } catch (error) {
-      console.error('Error deleting resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to delete resume' 
-      });
-    }
-  },
-
-  // Download resume as PDF
-  downloadResume: async (req, res) => {
-    try {
-      const resume = await Resume.getById(req.params.id);
-      
-      if (!resume) {
-        return res.status(404).render('error', { 
-          title: 'Not Found',
-          message: 'Resume not found' 
-        });
-      }
-
-      // Parse JSON strings into objects if needed
-      const resumeData = {
-        id: resume.id,
-        personalInfo: typeof resume.personal_info === 'string' ? JSON.parse(resume.personal_info) : resume.personal_info,
-        education: typeof resume.education === 'string' ? JSON.parse(resume.education) : resume.education,
-        experience: typeof resume.experience === 'string' ? JSON.parse(resume.experience) : resume.experience,
-        skills: typeof resume.skills === 'string' ? JSON.parse(resume.skills) : resume.skills,
-        templateName: resume.template_name
-      };
-
-      // Generate PDF using the template
-      const pdfBuffer = await pdfGenerator.generatePDF(resumeData);
-      
-      // Set headers for PDF download
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=${resumeData.personalInfo.name.replace(/\s+/g, '_')}_resume.pdf`);
-      
-      // Send the PDF
-      res.send(pdfBuffer);
-    } catch (error) {
-      console.error('Error downloading resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to download resume' 
-      });
-    }
-  },
-
-  // Get all resumes
-  getAllResumes: async (req, res) => {
-    try {
-      const resumes = await Resume.getAll();
-      
-      // Transform data for display
-      const resumeList = resumes.map(resume => ({
-        id: resume.id,
-        name: typeof resume.personal_info === 'string' 
-          ? JSON.parse(resume.personal_info).name 
-          : resume.personal_info.name,
-        templateName: resume.template_name,
-        createdAt: resume.created_at
-      }));
-
-      res.render('resume-list', {
-        title: 'My Resumes',
-        resumes: resumeList
-      });
-    } catch (error) {
-      console.error('Error fetching resumes:', error);
-      res.status(500).render('error', { 
-        title: 'Error',
-        message: 'Failed to load resumes' 
-      });
-    }
-  }
 };
 
-module.exports = resumeController; 
+module.exports = resumeController;

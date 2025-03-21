@@ -1,3 +1,4 @@
+// routes/index.js
 const express = require('express');
 const router = express.Router();
 
@@ -8,18 +9,18 @@ router.get('/', (req, res) => {
   });
 });
 
-// About page route
-router.get('/about', (req, res) => {
-  res.render('about', { 
-    title: 'About'
-  });
-});
+// // About page route
+// router.get('/about', (req, res) => {
+//   res.render('about', { 
+//     title: 'About'
+//   });
+// });
 
-// Contact page route
-router.get('/contact', (req, res) => {
-  res.render('contact', { 
-    title: 'Contact'
-  });
-});
+// // Contact page route
+// router.get('/contact', (req, res) => {
+//   res.render('contact', { 
+//     title: 'Contact'
+//   });
+// });
 
 module.exports = router;

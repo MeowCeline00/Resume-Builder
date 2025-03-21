@@ -8,6 +8,12 @@
     --card-bg-color: #ffffff;
     --header-height: 80px;
     --footer-height: 60px;
+    --light-border-color: #e2e8f0;
+    --hover-bg-color: #f7fafc;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --danger-color: #ff3b30;
 }
 
 * {
@@ -122,8 +128,9 @@ img {
     font-weight: 500;
 }
 
-.main-nav ul li a:hover {
+.main-nav ul li a:hover, .main-nav ul li a.active {
     color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
 }
 
 .hero {
@@ -250,6 +257,146 @@ img {
     height: var(--footer-height);
 }
 
+/* Card Components */
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Resume List Page Styles */
+.resume-list-container {
+    padding: 2rem 0;
+}
+
+.resume-list-title {
+    color: #2d3748;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.resume-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.resume-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.resume-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.new-resume-card {
+    text-decoration: none;
+    border: 2px dashed #e2e8f0;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.existing-resume-card {
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+}
+
+.card-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+}
+
+.create-icon, .resume-icon {
+    margin-bottom: 1.5rem;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+/* Dropdown menu for resume actions */
+.resume-actions-dropdown {
+    display: none;
+    position: absolute;
+    right: 5px;
+    bottom: -210px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 180px;
+    z-index: 10;
+    padding: 0.5rem 0;
+    border: 1px solid #e2e8f0;
+}
+
+.resume-actions-dropdown.active {
+    display: block;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #4a5568;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.action-item:hover {
+    background-color: #f7fafc;
+}
+
+.delete-action {
+    color: #ff3b30;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.action-icon {
+    margin-right: 0.75rem;
+}
+
+.delete-form {
+    margin: 0;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .hero-content h1 {
@@ -267,6 +414,10 @@ img {
     
     .btn {
         width: 100%;
+    }
+    
+    .resume-card-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -289,4 +440,127 @@ img {
     .hero-content h1 {
         font-size: 2rem;
     }
+    
+    .resume-card-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .resume-actions-dropdown {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: -210px;
+    }
+}
+
+/* Resume Builder Page Styles */
+.dashboard {
+    padding: 2rem 0;
+    text-align: left;
+    background-color: #E5E5E5;
+    min-height: 100vh;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #2B2B2B;
+}
+
+.resume-grid {
+    display: flex;
+    gap: 2rem;
+    justify-content: flex-start;
+}
+
+.resume-card {
+    background-color: #fff;
+    width: 240px;
+    height: 320px;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.resume-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.new-resume {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.plus-icon {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.resume-content img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 1rem;
+}
+
+.resume-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.resume-content p {
+    font-size: 0.9rem;
+    color: gray;
+}
+
+.resume-options {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.options-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 10px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0;
+    width: 140px;
+}
+
+.dropdown-menu li {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.dropdown-menu li:hover {
+    background-color: #f4f4f4;
+}
+
+.dropdown-menu .delete {
+    color: red;
+}
+
+.dropdown-menu .delete:hover {
+    background-color: #ffe6e6;
 }

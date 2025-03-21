@@ -1,30 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const resumeController = require('../controllers/resumeController'); 
+const resumeController = require('../controllers/resumeController');
 
-// Resume builder form page
+// Routes for resumes
+router.get('/', resumeController.getAllResumes);
 router.get('/builder', resumeController.getBuilderPage);
-
-// Submit resume data
+router.get('/new', resumeController.getNewResumePage);
 router.post('/create', resumeController.createResume);
-
-// Display resume preview
-router.get('/preview/:id', resumeController.previewResume);
-
-// PDF-like editor page
-router.get('/edit-preview/:id', resumeController.getEditPreviewPage); 
-
-// Edit resume
 router.get('/edit/:id', resumeController.getEditPage);
-router.put('/update/:id', resumeController.updateResume);
-
-// Delete resume
-router.delete('/delete/:id', resumeController.deleteResume);
-
-// Download resume as PDF
+router.post('/update/:id', resumeController.updateResume);
+router.post('/delete/:id', resumeController.deleteResume);
+router.get('/preview/:id', resumeController.previewResume);
 router.get('/download/:id', resumeController.downloadResume);
-
-// List all saved resumes
-router.get('/list', resumeController.getAllResumes);
 
 module.exports = router;

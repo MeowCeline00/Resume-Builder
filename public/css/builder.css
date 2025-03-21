@@ -1,0 +1,164 @@
+/* Resume Builder Form Styles */
+.builder-container {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.builder-title {
+    margin-bottom: 2rem;
+}
+
+.form-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.field-help {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: -0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-subgroup {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.form-subgroup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-subgroup-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.btn-add, .btn-remove {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-add {
+    background-color: transparent;
+    color: #4a5568;
+    border: 1px dashed #cbd5e0;
+    margin-top: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+}
+
+.btn-remove {
+    background-color: transparent;
+    color: #e53e3e;
+    border: 1px solid #e53e3e;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.template-option {
+    position: relative;
+}
+
+.template-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.template-label {
+    display: block;
+    cursor: pointer;
+    text-align: center;
+}
+
+.template-preview {
+    border: 2px solid #eee;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+    height: 250px;
+}
+
+.template-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.template-option input[type="radio"]:checked + .template-label .template-preview {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 2px #3182ce;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .template-grid {
+        grid-template-columns: 1fr;
+    }
+}

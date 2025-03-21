@@ -13,9 +13,9 @@ const pool = new Pool({
 // Test the connection
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
-    console.error('Database connection error:', err.stack);
+    console.error('❌ Database connection error:', err.stack);
   } else {
-    console.log('Database connected successfully at:', res.rows[0].now);
+    console.log('✅ Database connected successfully at:', res.rows[0].now);
   }
 });
 

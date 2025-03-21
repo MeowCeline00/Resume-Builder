@@ -19,22 +19,34 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(methodOverride('_method')); // For PUT and DELETE requests
+app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Content Security Policy
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com;"
+  );
+  next();
+});
 
 // Routes
 app.use('/', indexRoutes);
 app.use('/resume', resumeRoutes);
 
-// Error handler
+
+// Error handler (modify in app.js)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error:', err);
+
   res.status(500).render('error', { 
     title: 'Error',
     message: err.message || 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err : {} 
+    error: process.env.NODE_ENV === 'development' ? err : {}  
   });
 });
+
 
 // Start server
 app.listen(PORT, () => {
