@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const resumeController = require('../controllers/resumeController');
+const resumeController = require('../controllers/resumeController'); 
 
 // Resume builder form page
 router.get('/builder', resumeController.getBuilderPage);
@@ -12,7 +12,7 @@ router.post('/create', resumeController.createResume);
 router.get('/preview/:id', resumeController.previewResume);
 
 // PDF-like editor page
-router.get('/edit-preview/:id', resumeController.getEditPreviewPage);
+router.get('/edit-preview/:id', resumeController.getEditPreviewPage); 
 
 // Edit resume
 router.get('/edit/:id', resumeController.getEditPage);
