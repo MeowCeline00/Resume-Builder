@@ -1,110 +1,93 @@
 // routes/resume.js
 const express = require('express');
 const router = express.Router();
-const Resume = require('../models/Resume');
+const resumeController = require('../controllers/resumeController');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const fs = require('fs');
+const Resume = require('../models/Resume');
 
-// GET all resumes
-
-router.get('/', async (req, res) => {
-    try {
-      const resumes = await Resume.getAll();
-      res.render('builder', {
-        title: 'Resume Dashboard',
-        resumes
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Server error');
+// Ensure thumbnail directories exist
+const createDirsIfNotExist = () => {
+  const dirs = [
+    path.join(__dirname, '../public/img/thumbnails'),
+    path.join(__dirname, '../public/img/templates'),
+    path.join(__dirname, '../public/img/previews'),
+    path.join(__dirname, '../public/img/icons')
+  ];
+  
+  dirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`Created directory: ${dir}`);
     }
   });
-  
+};
 
-// POST create new resume
-router.post('/create', async (req, res) => {
-  const { title } = req.body;
-  try {
-    const newResume = await Resume.create({ title });
+createDirsIfNotExist();
 
-    // Generate thumbnail using Puppeteer
-    const browser = await puppeteer.launch({ headless: 'new' });
-    const page = await browser.newPage();
-    await page.goto(`http://localhost:3000/resume/preview/${newResume.id}`, {
-      waitUntil: 'networkidle0'
-    });
+// List all resumes
+router.get('/', resumeController.getAllResumes);
 
-    const screenshotPath = path.join(__dirname, '../public/img/thumbnails', `${newResume.id}.png`);
-    await page.setViewport({ width: 1200, height: 1600 });
-    await page.screenshot({ path: screenshotPath });
-    await browser.close();
+// New resume form
+router.get('/new', resumeController.getNewResumePage);
 
-    res.redirect(`/resume/edit/${newResume.id}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error creating resume');
-  }
-});
+// Builder page
+router.get('/builder', resumeController.getBuilderPage);
 
-// GET resume by ID (for edit page)
-router.get('/edit/:id', async (req, res) => {
-  try {
-    const resume = await Resume.getById(req.params.id);
-    res.render('edit-resume', { resumeData: resume });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Resume not found');
-  }
-});
+// Create resume
+router.post('/create', resumeController.createResume);
 
-// POST rename resume
+// Edit resume page
+router.get('/edit/:id', resumeController.getEditPage);
+
+// Update resume
+router.post('/update/:id', resumeController.updateResume);
+
+// Preview resume
+router.get('/preview/:id', resumeController.previewResume);
+
+// Download resume as PDF
+router.get('/download/:id', resumeController.downloadResume);
+
+// Delete resume
+router.post('/delete/:id', resumeController.deleteResume);
+router.delete('/:id', resumeController.deleteResume);
+
+// Save preview as thumbnail
+router.get('/save-preview/:id', resumeController.saveResumePreview);
+
+// Rename resume
 router.post('/:id/rename', async (req, res) => {
-  const { newTitle } = req.body;
   try {
+    const { newTitle } = req.body;
     const updated = await Resume.rename(req.params.id, newTitle);
     res.json(updated);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('Error renaming resume:', error);
     res.status(500).send('Rename failed');
   }
 });
 
-// POST duplicate resume
+// Duplicate resume
 router.post('/:id/duplicate', async (req, res) => {
   try {
     const copy = await Resume.duplicate(req.params.id);
     res.json(copy);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('Error duplicating resume:', error);
     res.status(500).send('Duplicate failed');
   }
 });
 
-// POST toggle lock
+// Toggle lock status
 router.post('/:id/lock', async (req, res) => {
-  const { lock } = req.body;
   try {
+    const { lock } = req.body;
     const updated = await Resume.toggleLock(req.params.id, lock);
     res.json(updated);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('Error toggling lock:', error);
     res.status(500).send('Lock toggle failed');
-  }
-});
-
-// DELETE resume
-router.delete('/:id', async (req, res) => {
-  try {
-    const resume = await Resume.getById(req.params.id);
-    if (resume.is_locked) {
-      return res.status(403).send('Resume is locked and cannot be deleted.');
-    }
-
-    const deleted = await Resume.delete(req.params.id);
-    res.json(deleted);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Delete failed');
   }
 });
 

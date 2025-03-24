@@ -36,3 +36,31 @@ function showModal() {
     menu.classList.toggle("show");
   }
   
+  // Additional functions needed
+  function renameResume(id, currentName) {
+    const newName = prompt("Enter a new name for the resume:", currentName);
+    if (!newName || newName === currentName) return;
+    
+    fetch(`/resume/${id}/rename`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newTitle: newName })
+    })
+    .then(() => window.location.reload());
+  }
+  
+  function duplicateResume(id) {
+    fetch(`/resume/${id}/duplicate`, {
+      method: 'POST'
+    })
+    .then(() => window.location.reload());
+  }
+  
+  function lockResume(id, lock) {
+    fetch(`/resume/${id}/lock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lock })
+    })
+    .then(() => window.location.reload());
+  }

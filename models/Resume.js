@@ -1,7 +1,7 @@
 const db = require('./db');
 
 class Resume {
-  static async create({ title, personalInfo = {}, education = [], experience = [], skills = [], templateName = '', thumbnail = null }) {
+  static async create({ title, personalInfo = {}, education = [], experience = [], skills = {}, templateName = 'modern', thumbnail = null }) {
     try {
       const result = await db.query(
         `INSERT INTO resumes 
@@ -47,6 +47,18 @@ class Resume {
 
   static async update(id, { personalInfo, education, experience, skills, templateName, thumbnail }) {
     try {
+      // If any of the fields are empty/null, get existing data from the database
+      if (!personalInfo || !education || !experience || !skills) {
+        const existingResume = await this.getById(id);
+        if (existingResume) {
+          personalInfo = personalInfo || JSON.parse(existingResume.personal_info || '{}');
+          education = education || JSON.parse(existingResume.education || '[]');
+          experience = experience || JSON.parse(existingResume.experience || '[]');
+          skills = skills || JSON.parse(existingResume.skills || '{}');
+          templateName = templateName || existingResume.template_name;
+        }
+      }
+      
       const result = await db.query(
         `UPDATE resumes 
          SET personal_info = $1, education = $2, experience = $3, skills = $4,
@@ -107,20 +119,25 @@ class Resume {
   }
 
   static async duplicate(id) {
-    const original = await Resume.getById(id);
-    if (!original) throw new Error('Resume not found');
+    try {
+      const original = await Resume.getById(id);
+      if (!original) throw new Error('Resume not found');
 
-    const copy = await Resume.create({
-      title: `${original.name} Copy`,
-      personalInfo: original.personal_info,
-      education: original.education,
-      experience: original.experience,
-      skills: original.skills,
-      templateName: original.template_name,
-      thumbnail: original.thumbnail_url
-    });
+      const copy = await Resume.create({
+        title: `${original.name} Copy`,
+        personalInfo: original.personal_info,
+        education: original.education,
+        experience: original.experience,
+        skills: original.skills,
+        templateName: original.template_name,
+        thumbnail: original.thumbnail_url
+      });
 
-    return copy;
+      return copy;
+    } catch (error) {
+      console.error('Error duplicating resume:', error);
+      throw error;
+    }
   }
 }
 

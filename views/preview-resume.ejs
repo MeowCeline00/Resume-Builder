@@ -1,9 +1,9 @@
-<%- include('../partials/header') %>
+<%- include('partials/header') %>
 
 <section class="resume-preview-page">
   <div class="container">
     <div class="progress-tabs-wrapper">
-      <ul class="progress-tabs">
+      <ul class="progress-tabs disabled">
         <li class="tab" data-step="0">Personal details</li>
         <li class="tab" data-step="1">Contact information</li>
         <li class="tab" data-step="2">Professional summary</li>
@@ -14,36 +14,33 @@
       </ul>
     </div>
 
-    <div class="preview-page-wrapper">
+    <div class="preview-resume-wrapper">
       <!-- Resume Preview -->
       <div id="resumePreviewWrapper" data-resume-id="<%= resume.id %>" class="resume-preview-frame">
         <iframe id="resumePreview" name="resumePreview" src="/resume/preview/<%= resume.id %>" frameborder="0"></iframe>
       </div>
 
       <!-- Right side buttons -->
-      <div class="preview-buttons">
-        <button class="preview-icon-btn" id="btn-download">
+      <div class="preview-actions">
+        <button class="icon-btn" id="btn-download" data-id="<%= resume.id %>">
           <img src="/img/icons/download-icon.png" alt="Download">
         </button>
-        <button class="preview-icon-btn" id="btn-share">
+        <button class="icon-btn" id="btn-share">
           <img src="/img/icons/share-icon.png" alt="Share">
         </button>
-        <button class="preview-icon-btn" id="btn-print">
+        <button class="icon-btn" id="btn-print">
           <img src="/img/icons/print-icon.png" alt="Print">
         </button>
       </div>
+    </div>
 
-      <!-- Edit button -->
-      <div class="preview-edit">
-        <a href="/resume/edit/<%= resume.id %>" class="btn btn-primary">Edit</a>
-      </div>
-      <div class="preview-edit">
-        <a href="/resume/edit/<%= resume.id %>" class="btn btn-primary">Edit</a>
-        <a href="/resume/save-preview/<%= resume.id %>" class="btn btn-success" style="background-color: #f5a623; color: white;">Save</a>
-      </div>      
+    <!-- Edit button -->
+    <div class="edit-footer">
+      <a href="/resume/edit/<%= resume.id %>" class="btn btn-primary">Edit Resume</a>
+      <a href="/resume/save-preview/<%= resume.id %>" class="btn btn-primary" style="background-color: #f5a623; margin-left: 10px;">Save Preview</a>
     </div>
   </div>
 </section>
 
 <script src="/js/preview-controls.js"></script>
-<%- include('../partials/footer') %>
+<%- include('partials/footer') %>

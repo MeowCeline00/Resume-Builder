@@ -28,9 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   
-    tabs.forEach(tab => {
+    tabs.forEach((tab, index) => {
       tab.addEventListener("click", () => {
-        currentStep = parseInt(tab.getAttribute("data-step"));
+        currentStep = index;
         showStep(currentStep);
       });
     });
@@ -122,4 +122,3 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
-  

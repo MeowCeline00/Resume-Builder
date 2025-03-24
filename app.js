@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const methodOverride = require('method-override');
+const fs = require('fs');
 require('dotenv').config();
 
 // Import routes
@@ -12,6 +13,25 @@ const resumeRoutes = require('./routes/resume');
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Ensure required directories exist
+const ensureDirectories = () => {
+  const dirs = [
+    path.join(__dirname, 'public/img/thumbnails'),
+    path.join(__dirname, 'public/img/templates'),
+    path.join(__dirname, 'public/img/previews'),
+    path.join(__dirname, 'public/img/icons')
+  ];
+  
+  dirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`Created directory: ${dir}`);
+    }
+  });
+};
+
+ensureDirectories();
 
 // Set view engine
 app.set('view engine', 'ejs');
@@ -23,11 +43,11 @@ app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Content Security Policy
+// Content Security Policy with less restrictive settings
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; font-src 'self' https://fonts.gstatic.com https://cdn.scite.ai; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'"
+    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
   );  
   next();
 });
@@ -49,32 +69,4 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
-
-// Puppeteer thumbnail generation endpoint
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const Resume = require('./models/Resume');
-
-app.get('/resume/save-preview/:id', async (req, res) => {
-  const resumeId = req.params.id;
-  try {
-    const browser = await puppeteer.launch({ headless: 'new' });
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1080, height: 1400 });
-
-    const url = `http://localhost:${PORT}/resume/preview/${resumeId}`;
-    await page.goto(url, { waitUntil: 'networkidle0' });
-
-    const screenshotPath = `public/img/previews/${resumeId}.png`;
-    await page.screenshot({ path: screenshotPath });
-    await browser.close();
-
-    // Update the resume with the thumbnail URL
-    const updated = await Resume.update(resumeId, { thumbnail: `/img/previews/${resumeId}.png` });
-    res.redirect('/resume');
-  } catch (err) {
-    console.error('Error generating thumbnail:', err);
-    res.status(500).send('Error generating preview');
-  }
 });

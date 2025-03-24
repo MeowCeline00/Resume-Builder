@@ -34,7 +34,7 @@
           <div class="resume-content">
             <img src="<%= resume.thumbnail_url || '/img/icons/template-icon.png' %>" alt="Resume Preview" />
             <h3><%= resume.name %></h3>
-            <p>Last updated: <%= resume.updatedAt %></p>
+            <p>Last updated: <%= new Date(resume.updatedAt).toLocaleDateString() %></p>
           </div>
         </div>
       <% }); %>

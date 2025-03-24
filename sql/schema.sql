@@ -7,11 +7,15 @@
 -- Create resumes table
 CREATE TABLE IF NOT EXISTS resumes (
   id SERIAL PRIMARY KEY,
-  personal_info JSONB NOT NULL,
-  education JSONB NOT NULL,
-  experience JSONB NOT NULL,
-  skills JSONB NOT NULL,
-  template_name VARCHAR(50) NOT NULL,
+  name VARCHAR(255) NOT NULL DEFAULT 'Untitled Resume',
+  personal_info JSONB NOT NULL DEFAULT '{}',
+  education JSONB NOT NULL DEFAULT '[]',
+  experience JSONB NOT NULL DEFAULT '[]',
+  projects JSONB DEFAULT '[]',
+  skills JSONB NOT NULL DEFAULT '{}',
+  template_name VARCHAR(50) NOT NULL DEFAULT 'modern',
+  thumbnail_url VARCHAR(255),
+  is_locked BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
