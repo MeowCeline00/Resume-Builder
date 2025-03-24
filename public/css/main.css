@@ -14,6 +14,7 @@
     --text-secondary: #4a5568;
     --text-muted: #718096;
     --danger-color: #ff3b30;
+    --button-colour: #74BCE9;
 }
 
 * {
@@ -44,7 +45,12 @@ main {
     flex: 1;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     margin-bottom: 0.5rem;
     font-weight: 600;
     line-height: 1.2;
@@ -128,7 +134,8 @@ img {
     font-weight: 500;
 }
 
-.main-nav ul li a:hover, .main-nav ul li a.active {
+.main-nav ul li a:hover,
+.main-nav ul li a.active {
     color: var(--primary-color);
     border-bottom: 2px solid var(--primary-color);
 }
@@ -167,23 +174,23 @@ img {
     vertical-align: middle;
     user-select: none;
     border: 1px solid transparent;
-    padding: 0.5rem 1.5rem;
+    padding: 0.6rem 1.6rem;
     font-size: 1rem;
     line-height: 1.5;
-    border-radius: 0.25rem;
+    border-radius: 15px;
     transition: all 0.15s ease-in-out;
     cursor: pointer;
 }
 
 .btn-primary {
+    background-color: var(--button-colour);
     color: #fff;
-    background-color: #555;
-    border-color: #555;
+    border-color: var(--button-colour);
 }
 
 .btn-primary:hover {
-    background-color: #333;
-    border-color: #333;
+    background-color: #60a8d7;
+    border-color: var(--button-colour);
 }
 
 .btn-secondary {
@@ -325,7 +332,8 @@ img {
     height: 100%;
 }
 
-.create-icon, .resume-icon {
+.create-icon,
+.resume-icon {
     margin-bottom: 1.5rem;
     color: #4a5568;
     display: flex;
@@ -402,20 +410,20 @@ img {
     .hero-content h1 {
         font-size: 2.5rem;
     }
-    
+
     .feature-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .hero-buttons {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .btn {
         width: 100%;
     }
-    
+
     .resume-card-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -427,24 +435,24 @@ img {
         padding: 1rem;
         height: auto;
     }
-    
+
     .main-nav ul {
         margin-top: 1rem;
     }
-    
+
     .main-nav ul li {
         margin-left: 0.75rem;
         margin-right: 0.75rem;
     }
-    
+
     .hero-content h1 {
         font-size: 2rem;
     }
-    
+
     .resume-card-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .resume-actions-dropdown {
         right: 50%;
         transform: translateX(50%);
@@ -563,4 +571,145 @@ img {
 
 .dropdown-menu .delete:hover {
     background-color: #ffe6e6;
+}
+
+.about {
+    margin: 60px 0;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.heading {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    line-height: 1.4;
+    color: #333;
+    text-align: left;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+}
+
+.video-text {
+    display: flex;
+    flex-direction: row;
+}
+
+.video-section {
+    width: 60%;
+    height: 100%;
+    /* position: absolute;
+    top: 0;
+    right: 0; */
+    z-index: -1;
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 100%;
+}
+
+video {
+    width: 100%;
+    border-radius: 15px;
+    height: 100%;
+}
+
+.content-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+.description {
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.number-img {
+    width: auto;
+    height: 40px;
+    display: flex;
+    margin: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.description {
+    flex: 1;
+}
+
+.get-started-btn {
+    background-color: #74BCE9;
+    color: white;
+    font-size: 18px;
+    width: 200px;
+    height: 55px;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 40px;
+    align-items: left;
+}
+
+.get-started-btn:hover {
+    background-color: #60a8d7;
+}
+
+@media (max-width: 768px) {
+    .content {
+        align-items: center;
+    }
+
+    .heading {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .video-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .video-section {
+        width: 100%;
+        height: auto;
+        border-radius: 15px;
+        margin-top: 40px;
+    }
+
+    video {
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    .content-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .number {
+        font-size: 32px;
+        margin-bottom: 10px;
+        flex-direction: column;
+        align-items: left;
+        text-align: left;
+    }
+
+    .get-started-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+    }
 }

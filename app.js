@@ -7,6 +7,8 @@ require('dotenv').config();
 // Import routes
 const indexRoutes = require('./routes/index');
 const resumeRoutes = require('./routes/resume');
+const aboutRoutes = require('./routes/about');
+
 
 // Initialize Express app
 const app = express();
@@ -34,7 +36,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', indexRoutes);
 app.use('/resume', resumeRoutes);
-
+app.use('/about', aboutRoutes);
 
 // Error handler (modify in app.js)
 app.use((err, req, res, next) => {
