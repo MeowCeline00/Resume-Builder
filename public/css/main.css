@@ -205,6 +205,7 @@ img {
 
 .features {
     padding: 2rem 0;
+    padding-top: 0;
 }
 
 .feature-grid {
@@ -216,7 +217,7 @@ img {
 .feature-card {
     background-color: var(--card-bg-color);
     padding: 2rem;
-    border-radius: 8px;
+    border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: 100%;
@@ -405,6 +406,11 @@ img {
     margin: 0;
 }
 
+.error-actions {
+    display: flex;
+    gap: 1rem;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .hero-content h1 {
@@ -416,6 +422,11 @@ img {
     }
 
     .hero-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .error-actions {
         flex-direction: column;
         gap: 0.5rem;
     }
@@ -435,6 +446,10 @@ img {
         padding: 1rem;
         height: auto;
     }
+
+    .main-header {
+        height: 100px;
+        }
 
     .main-nav ul {
         margin-top: 1rem;
@@ -602,12 +617,12 @@ img {
 }
 
 .video-section {
-    width: 60%;
+    width: 50%;
     height: 100%;
     /* position: absolute;
     top: 0;
     right: 0; */
-    z-index: -1;
+    z-index: 5; /* or just remove this line */
 }
 
 .video-placeholder {
@@ -622,7 +637,7 @@ video {
 }
 
 .content-item {
-    display: flex;
+    display: inline-flex; 
     align-items: center;
     justify-content: center;
     gap: 20px;
@@ -634,11 +649,15 @@ video {
     border-radius: 8px;
 }
 
+.text-bold {
+    font-weight: 700;
+}
+
 .number-img {
     width: auto;
     height: 40px;
-    display: flex;
-    margin: 5px;
+    padding: 2px;
+    margin-bottom: 2px;
     justify-content: center;
     align-items: center;
 }
