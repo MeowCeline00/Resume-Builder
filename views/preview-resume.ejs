@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+
+<section class="resume-preview-page">
+  <div class="container">
+    <div class="progress-tabs-wrapper">
+      <ul class="progress-tabs">
+        <li class="tab" data-step="0">Personal details</li>
+        <li class="tab" data-step="1">Contact information</li>
+        <li class="tab" data-step="2">Professional summary</li>
+        <li class="tab" data-step="3">Experience</li>
+        <li class="tab" data-step="4">Projects</li>
+        <li class="tab" data-step="5">Education</li>
+        <li class="tab active" data-step="6">Skill & Hobbies</li>
+      </ul>
+    </div>
+
+    <div class="preview-page-wrapper">
+      <!-- Resume Preview -->
+      <div id="resumePreviewWrapper" data-resume-id="<%= resume.id %>" class="resume-preview-frame">
+        <iframe id="resumePreview" name="resumePreview" src="/resume/preview/<%= resume.id %>" frameborder="0"></iframe>
+      </div>
+
+      <!-- Right side buttons -->
+      <div class="preview-buttons">
+        <button class="preview-icon-btn" id="btn-download">
+          <img src="/img/icons/download-icon.png" alt="Download">
+        </button>
+        <button class="preview-icon-btn" id="btn-share">
+          <img src="/img/icons/share-icon.png" alt="Share">
+        </button>
+        <button class="preview-icon-btn" id="btn-print">
+          <img src="/img/icons/print-icon.png" alt="Print">
+        </button>
+      </div>
+
+      <!-- Edit button -->
+      <div class="preview-edit">
+        <a href="/resume/edit/<%= resume.id %>" class="btn btn-primary">Edit</a>
+      </div>
+      <div class="preview-edit">
+        <a href="/resume/edit/<%= resume.id %>" class="btn btn-primary">Edit</a>
+        <a href="/resume/save-preview/<%= resume.id %>" class="btn btn-success" style="background-color: #f5a623; color: white;">Save</a>
+      </div>      
+    </div>
+  </div>
+</section>
+
+<script src="/js/preview-controls.js"></script>
+<%- include('../partials/footer') %>

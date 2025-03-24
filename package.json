@@ -18,7 +18,8 @@
     "express": "^4.21.2",
     "html-pdf": "^3.0.1",
     "method-override": "^3.0.0",
-    "pg": "^8.14.1"
+    "pg": "^8.14.1",
+    "puppeteer": "^24.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

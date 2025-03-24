@@ -1,0 +1,99 @@
+   .resume-preview-page {
+    padding: 2rem 0;
+    background-color: #dedede;
+    min-height: 100vh;
+  }
+  
+  .preview-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+  
+  .progress-tabs.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+  }
+  
+  .progress-tabs.disabled .tab {
+    padding: 10px 12px;
+    border-bottom: 2px solid #ccc;
+    white-space: nowrap;
+  }
+  
+  .progress-tabs.disabled .tab.active {
+    border-color: black;
+    font-weight: bold;
+  }
+  
+  .preview-resume-wrapper {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding: 1rem 0;
+  }
+  
+  .resume-preview-frame {
+    width: 800px;
+    height: 1000px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .preview-actions {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    top: 80px;
+    gap: 1rem;
+    padding: 0.5rem;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    transition: transform 0.2s ease;
+  }
+  
+  .icon-btn:hover {
+    transform: scale(1.1);
+  }
+  
+  .icon-btn img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .edit-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .edit-footer .btn-primary {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    background-color: #72b8e3;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .edit-footer .btn-primary:hover {
+    background-color: #53a2d1;
+  }
+  

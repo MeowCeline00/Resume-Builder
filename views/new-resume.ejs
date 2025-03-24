@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<section class="dashboard">
+  <div class="container">
+    <h2 class="dashboard-title">Create a new Resume</h2>
+
+    <form action="/resume/create" method="POST" class="form-section builder-container">
+      <div class="form-group full-width">
+        <label for="resumeTitle">Resume Name</label>
+        <input type="text" id="resumeTitle" name="personalInfo[name]" placeholder="e.g. UI/UX Designer" required>
+        <p class="field-help">Tip: Name it after the job you’re applying for.</p>
+      </div>
+
+      <input type="hidden" name="templateName" value="modern">
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a href="/resume" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

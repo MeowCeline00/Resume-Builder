@@ -1,63 +1,59 @@
 <%- include('partials/header') %>
 
-<section class="resume-builder">
-    <div class="container">
-        <h1>Resumes</h1>
-        <div class="resume-actions">
-            <!-- Card for creating a new resume -->
-            <div class="create-resume">
-                <h2>Create a new resume</h2>
-                <button class="btn btn-primary" onclick="location.href='/resume/builder/new'">Build Resume</button>
-            </div>
+<div class="dashboard">
+  <div class="container">
+    <h1 class="dashboard-title">Resumes</h1>
 
-            <!-- Card for editing existing resumes -->
-            <div class="edit-resume">
-                <h2>Edit existing resumes</h2>
-                <div class="resume-list">
-                    <% if (resumes && resumes.length > 0) { %>
-                        <% resumes.forEach(resume => { %>
-                            <div class="resume-card">
-                                <div class="resume-info">
-                                    <h3><%= resume.name %></h3>
-                                    <p>Last updated <%= resume.updatedAt %></p>
-                                </div>
-                                <div class="resume-actions-dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle" onclick="toggleDropdown('<%= resume.id %>')">
-                                        Actions
-                                    </button>
-                                    <div class="dropdown-menu" id="dropdown-<%= resume.id %>">
-                                        <a href="/resume/edit/<%= resume.id %>">Edit</a>
-                                        <a href="/resume/delete/<%= resume.id %>">Delete</a>
-                                    </div>
-                                </div>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p>No resumes found. Create a new one!</p>
-                    <% } %>
-                </div>
-            </div>
+    <div class="resume-grid">
+      <!-- Create a new resume card -->
+      <div class="resume-card" onclick="showModal()">
+        <div class="plus-icon">+</div>
+        <div class="new-resume">Create a new resume</div>
+      </div>
+
+      <!-- Existing resumes -->
+      <% resumes.forEach(function(resume) { %>
+        <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
+          <div class="resume-options">
+            <button class="options-btn" onclick="toggleMenu(this)">\u22EE</button>
+            <ul class="dropdown-menu" id="actions-dropdown-<%= resume.id %>">
+              <li onclick="openResume('<%= resume.id %>')">Open</li>
+              <li onclick="renameResume('<%= resume.id %>', '<%= resume.name %>')">Rename</li>
+              <li onclick="duplicateResume('<%= resume.id %>')">Duplicate</li>
+              <% if (resume.is_locked) { %>
+                <li onclick="lockResume('<%= resume.id %>', false)">Unlock</li>
+              <% } else { %>
+                <li onclick="lockResume('<%= resume.id %>', true)">Lock</li>
+              <% } %>
+              <% if (!resume.is_locked) { %>
+                <li class="delete" onclick="deleteResume('<%= resume.id %>')">Delete</li>
+              <% } %>
+            </ul>
+          </div>
+
+          <div class="resume-content">
+            <img src="<%= resume.thumbnail_url || '/img/icons/template-icon.png' %>" alt="Resume Preview" />
+            <h3><%= resume.name %></h3>
+            <p>Last updated: <%= resume.updatedAt %></p>
+          </div>
         </div>
+      <% }); %>
     </div>
-</section>
+  </div>
+</div>
 
+<!-- Modal for new resume -->
+<div class="modal" id="resumeModal">
+  <div class="modal-content">
+    <h3>+ Create a new Resume</h3>
+    <p>Start building your resume by giving it a name.</p>
+    <input type="text" id="resumeTitleInput" placeholder="Title">
+    <small>Tip: name your resume after the job you're applying for.</small>
+    <br><br>
+    <button onclick="createResume()">Create</button>
+    <button onclick="hideModal()">Cancel</button>
+  </div>
+</div>
+
+<script src="/js/builder.js"></script>
 <%- include('partials/footer') %>
-
-<script>
-    function toggleDropdown(resumeId) {
-        const dropdown = document.getElementById(`dropdown-${resumeId}`);
-        dropdown.classList.toggle('show');
-    }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-        if (!event.target.matches('.dropdown-toggle')) {
-            const dropdowns = document.querySelectorAll('.dropdown-menu');
-            dropdowns.forEach(dropdown => {
-                if (dropdown.classList.contains('show')) {
-                    dropdown.classList.remove('show');
-                }
-            });
-        }
-    };
-</script>

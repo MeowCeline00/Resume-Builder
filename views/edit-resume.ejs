@@ -1,0 +1,151 @@
+<%- include('partials/header') %>
+
+<section class="resume-builder">
+  <div class="container">
+    <div class="resume-editor">
+      <div class="form-section-wrapper">
+        <ul class="progress-tabs">
+          <li class="tab active" data-step="0">Personal details</li>
+          <li class="tab" data-step="1">Contact information</li>
+          <li class="tab" data-step="2">Professional summary</li>
+          <li class="tab" data-step="3">Experience</li>
+          <li class="tab" data-step="4">Projects</li>
+          <li class="tab" data-step="5">Education</li>
+          <li class="tab" data-step="6">Skill & Hobbies</li>
+        </ul>
+
+        <form id="resumeForm" method="POST" action="/resume/update/<%= resumeData.id %>">
+          <!-- Step 1: Personal Details -->
+          <div class="form-step active">
+            <h2>Personal details</h2>
+            <p>Personal details like your name and job title are crucial in a resume, providing recruiters with a quick snapshot who you are and what you do.</p>
+            <input type="text" name="personalInfo[firstName]" placeholder="First name" value="<%= resumeData.personalInfo.firstName || '' %>" required>
+            <input type="text" name="personalInfo[lastName]" placeholder="Last name" value="<%= resumeData.personalInfo.lastName || '' %>" required>
+            <input type="text" name="personalInfo[jobTitle]" placeholder="Desired/ Current job title" value="<%= resumeData.personalInfo.jobTitle || '' %>">
+            <div class="step-controls">
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Contact Info -->
+          <div class="form-step">
+            <h2>Contact Info</h2>
+            <p>Your contact information, including phone number and email, is essential so recruiters can easily reach out to you for opportunities.</p>
+            <input type="email" name="personalInfo[email]" placeholder="Email" value="<%= resumeData.personalInfo.email || '' %>">
+            <input type="tel" name="personalInfo[phone]" placeholder="Phone Number" value="<%= resumeData.personalInfo.phone || '' %>">
+            <div class="social-section">
+              <% if (resumeData.personalInfo.socials) { resumeData.personalInfo.socials.forEach(function(social, index) { %>
+                <input type="url" class="social-input" name="personalInfo[socials][<%= index %>]" placeholder="LinkedIn/Website" value="<%= social %>" />
+              <% }) } %>
+            </div>
+            <button type="button" data-add="social" class="btn-add-entry">+ Add Social</button>
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Professional Summary -->
+          <div class="form-step">
+            <h2>Professional Summary</h2>
+            <p>Your professional summary is a brief, impactful introduction that highlights your key skills, experience, and career goals.</p>
+            <textarea name="personalInfo[summary]" placeholder="Expert in ..."><%= resumeData.personalInfo.summary || '' %></textarea>
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Experience -->
+          <div class="form-step">
+            <h2>Experience</h2>
+            <p>Your employment history showcases your experience and responsibilities.</p>
+            <div class="experience-section">
+              <% resumeData.experience.forEach(function(exp, index) { %>
+                <div class="entry-group experience-group">
+                  <input type="text" name="experience[<%= index %>][workTitle]" placeholder="Job Title" value="<%= exp.workTitle || '' %>">
+                  <input type="text" name="experience[<%= index %>][workCompany]" placeholder="Company" value="<%= exp.workCompany || '' %>">
+                  <input type="text" name="experience[<%= index %>][location]" placeholder="Location" value="<%= exp.location || '' %>">
+                  <input type="date" name="experience[<%= index %>][startDate]" value="<%= exp.startDate || '' %>">
+                  <input type="date" name="experience[<%= index %>][endDate]" value="<%= exp.endDate || '' %>">
+                  <textarea name="experience[<%= index %>][description]" placeholder="Job Description"><%= exp.description || '' %></textarea>
+                </div>
+              <% }) %>
+            </div>
+            <button type="button" data-add="experience" class="btn-add-entry">+ Add Experience</button>
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Projects -->
+          <div class="form-step">
+            <h2>Projects</h2>
+            <p>Add 2 to 3 relevant projects to showcase your work.</p>
+            <div class="project-section">
+              <% if (resumeData.projects) resumeData.projects.forEach(function(proj, index) { %>
+                <div class="entry-group project-group">
+                  <input type="text" name="projects[<%= index %>][title]" placeholder="Project Title" value="<%= proj.title || '' %>">
+                  <input type="text" name="projects[<%= index %>][company]" placeholder="Company" value="<%= proj.company || '' %>">
+                  <textarea name="projects[<%= index %>][description]" placeholder="Project Description"><%= proj.description || '' %></textarea>
+                </div>
+              <% }) %>
+            </div>
+            <button type="button" data-add="project" class="btn-add-entry">+ Add Project</button>
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 6: Education -->
+          <div class="form-step">
+            <h2>Education</h2>
+            <p>Highlight your degrees and academic achievements.</p>
+            <div class="education-section">
+              <% resumeData.education.forEach(function(edu, index) { %>
+                <div class="entry-group education-group">
+                  <input type="text" name="education[<%= index %>][institution]" placeholder="Institution" value="<%= edu.institution || '' %>">
+                  <input type="text" name="education[<%= index %>][degree]" placeholder="Degree" value="<%= edu.degree || '' %>">
+                  <input type="text" name="education[<%= index %>][location]" placeholder="Location" value="<%= edu.location || '' %>">
+                  <input type="date" name="education[<%= index %>][startDate]" value="<%= edu.startDate || '' %>">
+                  <input type="date" name="education[<%= index %>][endDate]" value="<%= edu.endDate || '' %>">
+                  <textarea name="education[<%= index %>][description]" placeholder="Education Description"><%= edu.description || '' %></textarea>
+                </div>
+              <% }); %>
+            </div>
+            <button type="button" data-add="education" class="btn-add-entry">+ Add Education</button>
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 7: Skills & Hobbies -->
+          <div class="form-step">
+            <h2>Skills</h2>
+            <textarea name="skills[technical]" placeholder="Technical Skills (comma separated)"><%= resumeData.skills.technical.join(', ') %></textarea>
+            <textarea name="skills[soft]" placeholder="Soft Skills (comma separated)"><%= resumeData.skills.soft.join(', ') %></textarea>
+
+            <h2>Hobbies</h2>
+            <textarea name="personalInfo[hobbies]" placeholder="Hobbies (comma separated)"><%= resumeData.personalInfo.hobbies || '' %></textarea>
+
+            <div class="step-controls">
+              <button type="button" class="back-btn">Back</button>
+              <button type="submit" class="submit-btn">Save & Preview</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="preview-panel">
+        <iframe id="resumePreview" src="/resume/preview/<%= resumeData.id %>" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/js/form-handler.js"></script>
+<%- include('partials/footer') %>

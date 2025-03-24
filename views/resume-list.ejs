@@ -1,40 +1,83 @@
 <%- include('partials/header') %>
 
 <section class="dashboard">
-    <div class="container">
-        <h2 class="dashboard-title">Resumes</h2>
-        <div class="resume-grid">
-            <!-- Create New Resume Card -->
-            <div class="resume-card new-resume" onclick="window.location.href='/resume/builder'">
-                <span class="plus-icon">+</span>
-                <p>Create a new resume</p>
+  <div class="container">
+    <h2 class="dashboard-title">Resumes</h2>
+    <div class="resume-grid">
+      <!-- Create New Resume Card -->
+      <div class="resume-card new-resume" onclick="window.location.href='/resume/builder'">
+        <span class="plus-icon">+</span>
+        <p>Create a new resume</p>
+      </div>
+
+      <!-- Existing Resume Cards -->
+      <% if (resumes.length > 0) { %>
+        <% resumes.forEach(resume => { %>
+          <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
+            <div class="resume-thumbnail">
+              <!-- Show preview image if available, else fallback icon -->
+              <img src="/img/templates/<%= resume.id %>.png" alt="Preview Thumbnail" onerror="this.src='/img/icons/template-icon.png'" />
+
+            </div>
+            <div class="resume-content">
+              <h3><%= resume.name %></h3>
+              <p>Last updated: <%= resume.updatedAt %></p>
             </div>
 
-            <!-- Existing Resumes -->
-            <% if (resumes.length > 0) { %>
-                <% resumes.forEach(resume => { %>
-                    <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
-                        <div class="resume-content">
-                            <h3><%= resume.name %></h3>
-                            <p>Last updated: <%= resume.updatedAt %></p>
-                        </div>
-                        <!-- Dropdown Menu -->
-                        <div class="resume-options">
-                            <button class="options-btn" onclick="toggleDropdown('<%= resume.id %>')">⋮</button>
-                            <ul class="dropdown-menu" id="dropdown-<%= resume.id %>">
-                                <li><a href="/resume/preview/<%= resume.id %>">Open</a></li>
-                                <li><a href="#" onclick="renameResume('<%= resume.id %>')">Rename</a></li>
-                                <li><a href="/resume/duplicate/<%= resume.id %>">Duplicate</a></li>
-                                <li class="delete"><a href="#" onclick="deleteResume('<%= resume.id %>')">Delete</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <p>No resumes available. Click "Create a new resume" to start.</p>
-            <% } %>
-        </div>
+            <!-- Dropdown Menu -->
+            <div class="resume-options">
+              <button class="options-btn" onclick="toggleDropdown('<%= resume.id %>')">⋮</button>
+              <ul class="dropdown-menu" id="dropdown-<%= resume.id %>">
+                <li><a href="/resume/preview/<%= resume.id %>">Open</a></li>
+                <li><a href="#" onclick="renameResume('<%= resume.id %>')">Rename</a></li>
+                <li><a href="/resume/duplicate/<%= resume.id %>">Duplicate</a></li>
+                <li class="delete"><a href="#" onclick="deleteResume('<%= resume.id %>')">Delete</a></li>
+              </ul>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No resumes available. Click "Create a new resume" to start.</p>
+      <% } %>
     </div>
+  </div>
 </section>
+
+<script>
+  function toggleDropdown(id) {
+    const menu = document.getElementById(`dropdown-${id}`);
+    menu.classList.toggle("show");
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target)) {
+        menu.classList.remove("show");
+      }
+    });
+  }
+
+  function deleteResume(id) {
+    if (confirm("Are you sure you want to delete this resume?")) {
+      fetch(`/resume/delete/${id}`, {
+        method: "POST"
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  }
+
+  function renameResume(id) {
+    const newName = prompt("Enter a new name for the resume:");
+    if (newName) {
+      fetch(`/resume/rename/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ newName })
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  }
+</script>
 
 <%- include('partials/footer') %>
