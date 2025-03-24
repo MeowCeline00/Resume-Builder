@@ -12,32 +12,34 @@
       </div>
 
       <!-- Existing resumes -->
-      <% resumes.forEach(function(resume) { %>
-        <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
-          <div class="resume-options">
-            <button class="options-btn" onclick="toggleMenu(this)">\u22EE</button>
-            <ul class="dropdown-menu" id="actions-dropdown-<%= resume.id %>">
-              <li onclick="openResume('<%= resume.id %>')">Open</li>
-              <li onclick="renameResume('<%= resume.id %>', '<%= resume.name %>')">Rename</li>
-              <li onclick="duplicateResume('<%= resume.id %>')">Duplicate</li>
-              <% if (resume.is_locked) { %>
-                <li onclick="lockResume('<%= resume.id %>', false)">Unlock</li>
-              <% } else { %>
-                <li onclick="lockResume('<%= resume.id %>', true)">Lock</li>
-              <% } %>
-              <% if (!resume.is_locked) { %>
-                <li class="delete" onclick="deleteResume('<%= resume.id %>')">Delete</li>
-              <% } %>
-            </ul>
-          </div>
+      <% if (resumes && resumes.length > 0) { %>
+        <% resumes.forEach(function(resume) { %>
+          <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
+            <div class="resume-options">
+              <button class="options-btn" onclick="toggleMenu(this)">\u22EE</button>
+              <ul class="dropdown-menu" id="actions-dropdown-<%= resume.id %>">
+                <li onclick="openResume('<%= resume.id %>')">Open</li>
+                <li onclick="renameResume('<%= resume.id %>', '<%= resume.name %>')">Rename</li>
+                <li onclick="duplicateResume('<%= resume.id %>')">Duplicate</li>
+                <% if (resume.is_locked) { %>
+                  <li onclick="lockResume('<%= resume.id %>', false)">Unlock</li>
+                <% } else { %>
+                  <li onclick="lockResume('<%= resume.id %>', true)">Lock</li>
+                <% } %>
+                <% if (!resume.is_locked) { %>
+                  <li class="delete" onclick="deleteResume('<%= resume.id %>')">Delete</li>
+                <% } %>
+              </ul>
+            </div>
 
-          <div class="resume-content">
-            <img src="<%= resume.thumbnail_url || '/img/icons/template-icon.png' %>" alt="Resume Preview" />
-            <h3><%= resume.name %></h3>
-            <p>Last updated: <%= new Date(resume.updatedAt).toLocaleDateString() %></p>
+            <div class="resume-content">
+              <img src="<%= resume.thumbnail_url || '/img/icons/template-icon.png' %>" alt="Resume Preview" />
+              <h3><%= resume.name %></h3>
+              <p>Last updated: <%= new Date(resume.updatedAt).toLocaleDateString() %></p>
+            </div>
           </div>
-        </div>
-      <% }); %>
+        <% }); %>
+      <% } %>
     </div>
   </div>
 </div>
@@ -47,7 +49,7 @@
   <div class="modal-content">
     <h3>+ Create a new Resume</h3>
     <p>Start building your resume by giving it a name.</p>
-    <input type="text" id="resumeTitleInput" placeholder="Title">
+    <input type="text" id="resumeTitleInput" placeholder="Title" required>
     <small>Tip: name your resume after the job you're applying for.</small>
     <br><br>
     <button onclick="createResume()">Create</button>

@@ -60,11 +60,24 @@ router.get('/save-preview/:id', resumeController.saveResumePreview);
 router.post('/:id/rename', async (req, res) => {
   try {
     const { newTitle } = req.body;
+    if (!newTitle) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'New title is required'
+      });
+    }
+    
     const updated = await Resume.rename(req.params.id, newTitle);
-    res.json(updated);
+    res.json({
+      success: true,
+      resume: updated
+    });
   } catch (error) {
     console.error('Error renaming resume:', error);
-    res.status(500).send('Rename failed');
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Rename failed'
+    });
   }
 });
 
@@ -72,10 +85,16 @@ router.post('/:id/rename', async (req, res) => {
 router.post('/:id/duplicate', async (req, res) => {
   try {
     const copy = await Resume.duplicate(req.params.id);
-    res.json(copy);
+    res.json({
+      success: true,
+      resume: copy
+    });
   } catch (error) {
     console.error('Error duplicating resume:', error);
-    res.status(500).send('Duplicate failed');
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Duplicate failed'
+    });
   }
 });
 
@@ -83,11 +102,24 @@ router.post('/:id/duplicate', async (req, res) => {
 router.post('/:id/lock', async (req, res) => {
   try {
     const { lock } = req.body;
-    const updated = await Resume.toggleLock(req.params.id, lock);
-    res.json(updated);
+    if (lock === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Lock status is required'
+      });
+    }
+    
+    const updated = await Resume.toggleLock(req.params.id, !!lock);
+    res.json({
+      success: true,
+      resume: updated
+    });
   } catch (error) {
     console.error('Error toggling lock:', error);
-    res.status(500).send('Lock toggle failed');
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Lock toggle failed'
+    });
   }
 });
 

@@ -1,18 +1,24 @@
 const db = require('./db');
 
 class Resume {
-  static async create({ title, personalInfo = {}, education = [], experience = [], skills = {}, templateName = 'modern', thumbnail = null }) {
+  static async create({ title, personalInfo = {}, education = [], experience = [], projects = [], skills = {}, templateName = 'modern', thumbnail = null }) {
     try {
+      // Ensure title is not null
+      if (!title) {
+        title = 'Untitled Resume';
+      }
+      
       const result = await db.query(
         `INSERT INTO resumes 
-         (name, personal_info, education, experience, skills, template_name, thumbnail_url, is_locked, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, false, NOW(), NOW())
+         (name, personal_info, education, experience, projects, skills, template_name, thumbnail_url, is_locked, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, NOW(), NOW())
          RETURNING *`,
         [
           title,
           JSON.stringify(personalInfo),
           JSON.stringify(education),
           JSON.stringify(experience),
+          JSON.stringify(projects),
           JSON.stringify(skills),
           templateName,
           thumbnail
@@ -45,33 +51,37 @@ class Resume {
     }
   }
 
-  static async update(id, { personalInfo, education, experience, skills, templateName, thumbnail }) {
+  static async update(id, { personalInfo, education, experience, projects, skills, templateName, thumbnail }) {
     try {
-      // If any of the fields are empty/null, get existing data from the database
-      if (!personalInfo || !education || !experience || !skills) {
-        const existingResume = await this.getById(id);
-        if (existingResume) {
-          personalInfo = personalInfo || JSON.parse(existingResume.personal_info || '{}');
-          education = education || JSON.parse(existingResume.education || '[]');
-          experience = experience || JSON.parse(existingResume.experience || '[]');
-          skills = skills || JSON.parse(existingResume.skills || '{}');
-          templateName = templateName || existingResume.template_name;
-        }
+      // Get existing resume to preserve data we don't want to update
+      const existingResume = await this.getById(id);
+      if (!existingResume) {
+        throw new Error('Resume not found');
       }
+      
+      // Use existing values if new ones are not provided
+      const updatedPersonalInfo = personalInfo || JSON.parse(existingResume.personal_info || '{}');
+      const updatedEducation = education || JSON.parse(existingResume.education || '[]');
+      const updatedExperience = experience || JSON.parse(existingResume.experience || '[]');
+      const updatedProjects = projects || JSON.parse(existingResume.projects || '[]');
+      const updatedSkills = skills || JSON.parse(existingResume.skills || '{}');
+      const updatedTemplateName = templateName || existingResume.template_name;
+      const updatedThumbnail = thumbnail || existingResume.thumbnail_url;
       
       const result = await db.query(
         `UPDATE resumes 
-         SET personal_info = $1, education = $2, experience = $3, skills = $4,
-             template_name = $5, thumbnail_url = $6, updated_at = NOW()
-         WHERE id = $7
+         SET personal_info = $1, education = $2, experience = $3, projects = $4, skills = $5,
+             template_name = $6, thumbnail_url = $7, updated_at = NOW()
+         WHERE id = $8
          RETURNING *`,
         [
-          JSON.stringify(personalInfo),
-          JSON.stringify(education),
-          JSON.stringify(experience),
-          JSON.stringify(skills),
-          templateName,
-          thumbnail,
+          JSON.stringify(updatedPersonalInfo),
+          JSON.stringify(updatedEducation),
+          JSON.stringify(updatedExperience),
+          JSON.stringify(updatedProjects),
+          JSON.stringify(updatedSkills),
+          updatedTemplateName,
+          updatedThumbnail,
           id
         ]
       );
@@ -84,6 +94,10 @@ class Resume {
 
   static async rename(id, newTitle) {
     try {
+      if (!newTitle) {
+        throw new Error('New title is required');
+      }
+      
       const result = await db.query(
         'UPDATE resumes SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [newTitle, id]
@@ -110,6 +124,12 @@ class Resume {
 
   static async delete(id) {
     try {
+      // Check if resume is locked before deleting
+      const resume = await this.getById(id);
+      if (resume && resume.is_locked) {
+        throw new Error('Cannot delete a locked resume');
+      }
+      
       const result = await db.query('DELETE FROM resumes WHERE id = $1 RETURNING *', [id]);
       return result.rows[0];
     } catch (error) {
@@ -125,10 +145,11 @@ class Resume {
 
       const copy = await Resume.create({
         title: `${original.name} Copy`,
-        personalInfo: original.personal_info,
-        education: original.education,
-        experience: original.experience,
-        skills: original.skills,
+        personalInfo: JSON.parse(original.personal_info || '{}'),
+        education: JSON.parse(original.education || '[]'),
+        experience: JSON.parse(original.experience || '[]'),
+        projects: JSON.parse(original.projects || '[]'),
+        skills: JSON.parse(original.skills || '{}'),
         templateName: original.template_name,
         thumbnail: original.thumbnail_url
       });

@@ -17,9 +17,11 @@ const resumeController = {
       const resumes = await Resume.getAll() || [];
       const resumeList = resumes.map(resume => ({
         id: resume.id,
-        name: safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
+        name: safeParseJSON(resume.personal_info).name || resume.name || 'Unnamed Resume',
         templateName: resume.template_name,
-        updatedAt: new Date(resume.updated_at).toDateString()
+        updatedAt: new Date(resume.updated_at).toDateString(),
+        is_locked: resume.is_locked,
+        thumbnail_url: resume.thumbnail_url
       }));
 
       res.render('resume-list', { title: 'Resumes', resumes: resumeList });
@@ -36,8 +38,10 @@ const resumeController = {
         title: 'Resume Builder',
         resumes: resumes.map(resume => ({
           id: resume.id,
-          name: safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
-          updatedAt: new Date(resume.updated_at).toLocaleDateString()
+          name: resume.name || safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
+          updatedAt: new Date(resume.updated_at).toLocaleDateString(),
+          is_locked: resume.is_locked,
+          thumbnail_url: resume.thumbnail_url
         }))
       });
     } catch (error) {
@@ -61,25 +65,56 @@ const resumeController = {
 
   createResume: async (req, res) => {
     try {
+      // Extract the title from the request body
+      const title = req.body.title || 'Untitled Resume';
+      
       const resumeData = {
-        personalInfo: req.body.personalInfo || {},
+        title: title, 
+        personalInfo: req.body.personalInfo || {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          jobTitle: ""
+        },
         education: req.body.education || [{}],
         experience: req.body.experience || [{}],
         projects: req.body.projects || [{}],
         skills: req.body.skills || { technical: [], soft: [] },
         templateName: req.body.templateName || 'modern'
       };
+      
       const newResume = await Resume.create(resumeData);
-      res.redirect(`/resume/edit/${newResume.id}`);
+      
+      // Respond with JSON for AJAX requests or redirect for form submissions
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        res.json({ success: true, id: newResume.id });
+      } else {
+        res.redirect(`/resume/edit/${newResume.id}`);
+      }
     } catch (error) {
       console.error('Error creating resume:', error);
-      res.status(500).render('error', { title: 'Error', message: 'Failed to create resume' });
+      
+      // Handle errors for both AJAX and form submissions
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        res.status(500).json({ success: false, error: error.message });
+      } else {
+        res.status(500).render('error', { 
+          title: 'Error', 
+          message: 'Failed to create resume',
+          error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+      }
     }
   },
 
   getEditPage: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
+      if (!resume) {
+        return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
+      }
+      
       res.render('edit-resume', {
         title: 'Edit Resume',
         resumeData: {
@@ -87,9 +122,10 @@ const resumeController = {
           personalInfo: safeParseJSON(resume.personal_info),
           education: safeParseJSON(resume.education),
           experience: safeParseJSON(resume.experience),
-          projects: safeParseJSON(resume.projects || []),
+          projects: safeParseJSON(resume.projects || '[]'),
           skills: safeParseJSON(resume.skills),
-          templateName: resume.template_name
+          templateName: resume.template_name,
+          name: resume.name
         }
       });
     } catch (error) {
@@ -123,9 +159,20 @@ const resumeController = {
   deleteResume: async (req, res) => {
     try {
       await Resume.delete(req.params.id);
+      
+      // Check if this is an AJAX request
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        return res.json({ success: true });
+      }
+      
       res.redirect('/resume');
     } catch (error) {
       console.error('Error deleting resume:', error);
+      
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        return res.status(500).json({ success: false, error: error.message });
+      }
+      
       res.status(500).render('error', { title: 'Error', message: 'Failed to delete resume' });
     }
   },
@@ -142,9 +189,10 @@ const resumeController = {
         personalInfo: safeParseJSON(resume.personal_info),
         education: safeParseJSON(resume.education),
         experience: safeParseJSON(resume.experience),
-        projects: safeParseJSON(resume.projects || []),
+        projects: safeParseJSON(resume.projects || '[]'),
         skills: safeParseJSON(resume.skills),
-        templateName: resume.template_name
+        templateName: resume.template_name,
+        name: resume.name
       };
 
       res.render('preview-resume', { title: 'Preview Resume', resume: resumeData });
@@ -157,18 +205,29 @@ const resumeController = {
   downloadResume: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
+      if (!resume) {
+        return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
+      }
+      
       const resumeData = {
         id: resume.id,
         personalInfo: safeParseJSON(resume.personal_info),
         education: safeParseJSON(resume.education),
         experience: safeParseJSON(resume.experience),
-        projects: safeParseJSON(resume.projects || []),
+        projects: safeParseJSON(resume.projects || '[]'),
         skills: safeParseJSON(resume.skills),
-        templateName: resume.template_name
+        templateName: resume.template_name,
+        name: resume.name
       };
+      
       const pdfBuffer = await pdfGenerator.generatePDF(resumeData);
+      
+      const fileName = resumeData.personalInfo.firstName 
+        ? `${resumeData.personalInfo.firstName}_${resumeData.personalInfo.lastName || 'resume'}.pdf`
+        : `${resumeData.name || 'resume'}.pdf`;
+        
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=${resumeData.personalInfo.firstName || 'resume'}.pdf`);
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
       res.send(pdfBuffer);
     } catch (error) {
       console.error('Error downloading resume:', error);
