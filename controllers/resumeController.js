@@ -3,6 +3,11 @@ const Resume = require('../models/Resume');
 const pdfGenerator = require('../utils/pdfGenerator');
 const generateThumbnail = require('../utils/generateThumbnails');
 
+/**
+ * Safely parse JSON data, returning an empty object if parsing fails
+ * @param {string|object} data - The data to parse
+ * @returns {object} - Parsed JSON or empty object if parsing fails
+ */
 function safeParseJSON(data) {
   try {
     return typeof data === 'string' ? JSON.parse(data) : data;
@@ -13,6 +18,9 @@ function safeParseJSON(data) {
 }
 
 const resumeController = {
+  /**
+   * Get all resumes and render the resume list page
+   */
   getAllResumes: async (req, res) => {
     try {
       const resumes = await Resume.getAll() || [];
@@ -32,6 +40,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Render the builder page with available resumes
+   */
   getBuilderPage: async (req, res) => {
     try {
       const resumes = await Resume.getAll() || [];
@@ -51,6 +62,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Render the page for creating a new resume
+   */
   getNewResumePage: (req, res) => {
     res.render('new-resume', {
       title: 'Create New Resume',
@@ -64,6 +78,9 @@ const resumeController = {
     });
   },
 
+  /**
+   * Create a new resume from submitted data
+   */
   createResume: async (req, res) => {
     try {
       // Extract the title from the request body
@@ -109,6 +126,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Render the edit page for a specific resume
+   */
   getEditPage: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
@@ -135,8 +155,13 @@ const resumeController = {
     }
   },
 
+  /**
+   * Update an existing resume with submitted data
+   */
   updateResume: async (req, res) => {
     try {
+      console.log("Updating resume...", req.params.id);
+      
       const resumeData = {
         personalInfo: req.body.personalInfo || {},
         education: req.body.education || [{}],
@@ -145,18 +170,36 @@ const resumeController = {
         skills: req.body.skills || { technical: [], soft: [] },
         templateName: req.body.templateName || 'modern'
       };
+      
+      // Log the data being updated
+      console.log("Update data:", JSON.stringify(resumeData, null, 2));
+      
       const updatedResume = await Resume.update(req.params.id, resumeData);
-
-      const previewUrl = `${req.protocol}://${req.get('host')}/resume/preview/${updatedResume.id}`;
-      await generateThumbnail(updatedResume.id, previewUrl);
-
+  
+      // Generate the thumbnail
+      try {
+        const previewUrl = `${req.protocol}://${req.get('host')}/resume/preview/${updatedResume.id}`;
+        await generateThumbnail(updatedResume.id, previewUrl);
+      } catch (thumbnailError) {
+        console.error('Error generating thumbnail:', thumbnailError);
+        // Continue even if thumbnail generation fails
+      }
+  
+      // Redirect to preview page
       res.redirect(`/resume/preview/${updatedResume.id}`);
     } catch (error) {
       console.error('Error updating resume:', error);
-      res.status(500).render('error', { title: 'Error', message: 'Failed to update resume' });
+      res.status(500).render('error', { 
+        title: 'Error', 
+        message: 'Failed to update resume: ' + error.message,
+        error: process.env.NODE_ENV === 'development' ? error : {}
+      });
     }
   },
 
+  /**
+   * Delete a resume by ID
+   */
   deleteResume: async (req, res) => {
     try {
       await Resume.delete(req.params.id);
@@ -178,6 +221,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Preview a resume by ID
+   */
   previewResume: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
@@ -203,6 +249,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Download a resume as PDF
+   */
   downloadResume: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
@@ -236,6 +285,9 @@ const resumeController = {
     }
   },
 
+  /**
+   * Generate and save a thumbnail of the resume preview
+   */
   saveResumePreview: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);

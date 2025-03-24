@@ -1,4 +1,3 @@
-<!-- edit-resume.ejs -->
 <%- include('partials/header') %>
 
 <section class="resume-builder">
@@ -20,9 +19,18 @@
           <div class="form-step active">
             <h2>Personal details</h2>
             <p>Personal details like your name and job title are crucial in a resume, providing recruiters with a quick snapshot who you are and what you do.</p>
-            <input type="text" name="personalInfo[firstName]" placeholder="First name" value="<%= resumeData.personalInfo.firstName || '' %>" required>
-            <input type="text" name="personalInfo[lastName]" placeholder="Last name" value="<%= resumeData.personalInfo.lastName || '' %>" required>
-            <input type="text" name="personalInfo[jobTitle]" placeholder="Desired/ Current job title" value="<%= resumeData.personalInfo.jobTitle || '' %>">
+            <div class="form-group">
+              <input type="text" name="personalInfo[firstName]" placeholder="First name" value="<%= resumeData.personalInfo.firstName || '' %>" required>
+            </div>
+            <div class="form-group">
+              <input type="text" name="personalInfo[lastName]" placeholder="Last name" value="<%= resumeData.personalInfo.lastName || '' %>" required>
+            </div>
+            <div class="form-group">
+              <input type="text" name="personalInfo[jobTitle]" placeholder="Desired/Current job title" value="<%= resumeData.personalInfo.jobTitle || '' %>">
+            </div>
+            <div class="form-group">
+              <input type="text" name="personalInfo[location]" placeholder="Location (City, Country)" value="<%= resumeData.personalInfo.location || '' %>">
+            </div>
             <div class="step-controls">
               <button type="button" class="next-btn">Next</button>
             </div>
@@ -32,12 +40,24 @@
           <div class="form-step">
             <h2>Contact Info</h2>
             <p>Your contact information, including phone number and email, is essential so recruiters can easily reach out to you for opportunities.</p>
-            <input type="email" name="personalInfo[email]" placeholder="Email" value="<%= resumeData.personalInfo.email || '' %>">
-            <input type="tel" name="personalInfo[phone]" placeholder="Phone Number" value="<%= resumeData.personalInfo.phone || '' %>">
+            <div class="form-group">
+              <input type="email" name="personalInfo[email]" placeholder="Email" value="<%= resumeData.personalInfo.email || '' %>">
+            </div>
+            <div class="form-group">
+              <input type="tel" name="personalInfo[phone]" placeholder="Phone Number" value="<%= resumeData.personalInfo.phone || '' %>">
+            </div>
             <div class="social-section">
-              <% if (resumeData.personalInfo.socials) { resumeData.personalInfo.socials.forEach(function(social, index) { %>
-                <input type="url" class="social-input" name="personalInfo[socials][<%= index %>]" placeholder="LinkedIn/Website" value="<%= social %>" />
-              <% }) } %>
+              <% if (resumeData.personalInfo.socials && resumeData.personalInfo.socials.length > 0) { 
+                   resumeData.personalInfo.socials.forEach(function(social, index) { %>
+                <div class="form-group">
+                  <input type="url" class="social-input" name="personalInfo[socials][<%= index %>]" placeholder="LinkedIn/Website" value="<%= social %>" />
+                </div>
+              <% }); 
+                } else { %>
+                <div class="form-group">
+                  <input type="url" class="social-input" name="personalInfo[socials][0]" placeholder="LinkedIn/Website" value="" />
+                </div>
+              <% } %>
             </div>
             <button type="button" data-add="social" class="btn-add-entry">+ Add Social</button>
             <div class="step-controls">
@@ -50,7 +70,9 @@
           <div class="form-step">
             <h2>Professional Summary</h2>
             <p>Your professional summary is a brief, impactful introduction that highlights your key skills, experience, and career goals.</p>
-            <textarea name="personalInfo[summary]" placeholder="Expert in ..."><%= resumeData.personalInfo.summary || '' %></textarea>
+            <div class="form-group">
+              <textarea name="personalInfo[summary]" placeholder="Expert in ..."><%= resumeData.personalInfo.summary || '' %></textarea>
+            </div>
             <div class="step-controls">
               <button type="button" class="back-btn">Back</button>
               <button type="button" class="next-btn">Next</button>
@@ -60,18 +82,65 @@
           <!-- Step 4: Experience -->
           <div class="form-step">
             <h2>Experience</h2>
-            <p>Your employment history showcases your experience and responsibilities.</p>
+            <p>Your employment history showcases your experience, highlighting your past roles and responsibilities.</p>
             <div class="experience-section">
-              <% resumeData.experience.forEach(function(exp, index) { %>
+              <% if (resumeData.experience && resumeData.experience.length > 0) { 
+                   resumeData.experience.forEach(function(exp, index) { %>
                 <div class="entry-group experience-group">
-                  <input type="text" name="experience[<%= index %>][workTitle]" placeholder="Job Title" value="<%= exp.workTitle || '' %>">
-                  <input type="text" name="experience[<%= index %>][workCompany]" placeholder="Company" value="<%= exp.workCompany || '' %>">
-                  <input type="text" name="experience[<%= index %>][location]" placeholder="Location" value="<%= exp.location || '' %>">
-                  <input type="date" name="experience[<%= index %>][startDate]" value="<%= exp.startDate || '' %>">
-                  <input type="date" name="experience[<%= index %>][endDate]" value="<%= exp.endDate || '' %>">
-                  <textarea name="experience[<%= index %>][description]" placeholder="Job Description"><%= exp.description || '' %></textarea>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="experience[<%= index %>][workTitle]" placeholder="Job Title" value="<%= exp.workTitle || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="experience[<%= index %>][workCompany]" placeholder="Company" value="<%= exp.workCompany || '' %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="experience[<%= index %>][location]" placeholder="Location" value="<%= exp.location || '' %>">
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="experience[<%= index %>][startDate]" value="<%= exp.startDate || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="experience[<%= index %>][endDate]" value="<%= exp.endDate || '' %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="experience[<%= index %>][description]" placeholder="Job Description"><%= exp.description || '' %></textarea>
+                  </div>
                 </div>
-              <% }) %>
+              <% }); 
+                } else { %>
+                <div class="entry-group experience-group">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="experience[0][workTitle]" placeholder="Job Title">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="experience[0][workCompany]" placeholder="Company">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="experience[0][location]" placeholder="Location">
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="experience[0][startDate]">
+                    </div>
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="experience[0][endDate]">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="experience[0][description]" placeholder="Job Description"></textarea>
+                  </div>
+                </div>
+              <% } %>
             </div>
             <button type="button" data-add="experience" class="btn-add-entry">+ Add Experience</button>
             <div class="step-controls">
@@ -83,15 +152,39 @@
           <!-- Step 5: Projects -->
           <div class="form-step">
             <h2>Projects</h2>
-            <p>Add 2 to 3 relevant projects to showcase your work.</p>
+            <p>Add relevant projects to showcase your work.</p>
             <div class="project-section">
-              <% if (resumeData.projects) resumeData.projects.forEach(function(proj, index) { %>
+              <% if (resumeData.projects && resumeData.projects.length > 0) {
+                   resumeData.projects.forEach(function(proj, index) { %>
                 <div class="entry-group project-group">
-                  <input type="text" name="projects[<%= index %>][title]" placeholder="Project Title" value="<%= proj.title || '' %>">
-                  <input type="text" name="projects[<%= index %>][company]" placeholder="Company" value="<%= proj.company || '' %>">
-                  <textarea name="projects[<%= index %>][description]" placeholder="Project Description"><%= proj.description || '' %></textarea>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="projects[<%= index %>][title]" placeholder="Project Title" value="<%= proj.title || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="projects[<%= index %>][company]" placeholder="Company" value="<%= proj.company || '' %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="projects[<%= index %>][description]" placeholder="Project Description"><%= proj.description || '' %></textarea>
+                  </div>
                 </div>
-              <% }) %>
+              <% }); 
+                } else { %>
+                <div class="entry-group project-group">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="projects[0][title]" placeholder="Project Title">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="projects[0][company]" placeholder="Company">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="projects[0][description]" placeholder="Project Description"></textarea>
+                  </div>
+                </div>
+              <% } %>
             </div>
             <button type="button" data-add="project" class="btn-add-entry">+ Add Project</button>
             <div class="step-controls">
@@ -105,16 +198,63 @@
             <h2>Education</h2>
             <p>Highlight your degrees and academic achievements.</p>
             <div class="education-section">
-              <% resumeData.education.forEach(function(edu, index) { %>
+              <% if (resumeData.education && resumeData.education.length > 0) {
+                   resumeData.education.forEach(function(edu, index) { %>
                 <div class="entry-group education-group">
-                  <input type="text" name="education[<%= index %>][institution]" placeholder="Institution" value="<%= edu.institution || '' %>">
-                  <input type="text" name="education[<%= index %>][degree]" placeholder="Degree" value="<%= edu.degree || '' %>">
-                  <input type="text" name="education[<%= index %>][location]" placeholder="Location" value="<%= edu.location || '' %>">
-                  <input type="date" name="education[<%= index %>][startDate]" value="<%= edu.startDate || '' %>">
-                  <input type="date" name="education[<%= index %>][endDate]" value="<%= edu.endDate || '' %>">
-                  <textarea name="education[<%= index %>][description]" placeholder="Education Description"><%= edu.description || '' %></textarea>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="education[<%= index %>][institution]" placeholder="Institution" value="<%= edu.institution || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="education[<%= index %>][degree]" placeholder="Degree" value="<%= edu.degree || '' %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="education[<%= index %>][location]" placeholder="Location" value="<%= edu.location || '' %>">
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="education[<%= index %>][startDate]" value="<%= edu.startDate || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="education[<%= index %>][endDate]" value="<%= edu.endDate || '' %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="education[<%= index %>][description]" placeholder="Education Description"><%= edu.description || '' %></textarea>
+                  </div>
                 </div>
-              <% }); %>
+              <% }); 
+                } else { %>
+                <div class="entry-group education-group">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <input type="text" name="education[0][institution]" placeholder="Institution">
+                    </div>
+                    <div class="form-group">
+                      <input type="text" name="education[0][degree]" placeholder="Degree">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="education[0][location]" placeholder="Location">
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="education[0][startDate]">
+                    </div>
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="education[0][endDate]">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <textarea name="education[0][description]" placeholder="Education Description"></textarea>
+                  </div>
+                </div>
+              <% } %>
             </div>
             <button type="button" data-add="education" class="btn-add-entry">+ Add Education</button>
             <div class="step-controls">
@@ -126,27 +266,186 @@
           <!-- Step 7: Skills & Hobbies -->
           <div class="form-step">
             <h2>Skills</h2>
-            <textarea name="skills[technical]" placeholder="Technical Skills (comma separated)"><%= resumeData.skills.technical ? resumeData.skills.technical.join(', ') : '' %></textarea>
-            <textarea name="skills[soft]" placeholder="Soft Skills (comma separated)"><%= resumeData.skills.soft ? resumeData.skills.soft.join(', ') : '' %></textarea>
+            <div class="form-group">
+              <textarea name="skills[technical]" placeholder="Technical Skills (comma separated)"><%= resumeData.skills && resumeData.skills.technical ? resumeData.skills.technical.join(', ') : '' %></textarea>
+            </div>
+            <div class="form-group">
+              <textarea name="skills[soft]" placeholder="Soft Skills (comma separated)"><%= resumeData.skills && resumeData.skills.soft ? resumeData.skills.soft.join(', ') : '' %></textarea>
+            </div>
 
             <h2>Hobbies</h2>
-            <textarea name="personalInfo[hobbies]" placeholder="Hobbies (comma separated)"><%= resumeData.personalInfo.hobbies || '' %></textarea>
+            <div class="form-group">
+              <textarea name="personalInfo[hobbies]" placeholder="Hobbies (comma separated)"><%= resumeData.personalInfo.hobbies || '' %></textarea>
+            </div>
 
             <div class="step-controls">
               <button type="button" class="back-btn">Back</button>
-              <button type="submit" class="submit-btn">Save & Preview</button>
+              <button id="submitButton" type="submit" class="submit-btn">Save & Preview</button>
             </div>
           </div>
+
+          <!-- Hidden fields to ensure form data is complete -->
+          <input type="hidden" name="templateName" value="<%= resumeData.templateName || 'modern' %>">
         </form>
       </div>
 
       <!-- Preview Panel -->
       <div class="preview-panel">
+        <div class="preview-header">
+          <h3>Live Preview</h3>
+        </div>
         <iframe id="resumePreview" src="/resume/preview/<%= resumeData.id %>" frameborder="0"></iframe>
       </div>
     </div>
   </div>
 </section>
+
+<style>
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .preview-header {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .resume-builder {
+    padding: 2rem 0;
+    background-color: #ddd;
+  }
+  
+  .resume-editor {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .form-section-wrapper {
+    flex: 3;
+    background-color: #f5f5f5;
+    padding: 1.5rem;
+    border-radius: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .preview-panel {
+    flex: 2;
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    max-width: 400px;
+  }
+  
+  .preview-panel iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+  }
+  
+  label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  input, textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  textarea {
+    min-height: 100px;
+  }
+  
+  .progress-tabs {
+    display: flex;
+    list-style: none;
+    margin-bottom: 1.5rem;
+    padding: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .progress-tabs .tab {
+    padding: 10px 15px;
+    border-bottom: 2px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .progress-tabs .tab.active {
+    border-bottom: 3px solid #000;
+    font-weight: bold;
+  }
+  
+  .step-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  button.next-btn, button.submit-btn {
+    background-color: #5cbdf5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button.back-btn {
+    background-color: #ccc;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .entry-group {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .btn-add-entry {
+    background-color: #f0f0f0;
+    border: 2px dashed #ccc;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  @media (max-width: 992px) {
+    .resume-editor {
+      flex-direction: column;
+    }
+    
+    .preview-panel {
+      max-width: 100%;
+      height: 400px;
+    }
+  }
+</style>
 
 <script src="/js/form-handler.js"></script>
 <%- include('partials/footer') %>
