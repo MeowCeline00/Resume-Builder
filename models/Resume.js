@@ -1,3 +1,4 @@
+// models/Resume.js
 const db = require('./db');
 
 class Resume {
@@ -157,6 +158,19 @@ class Resume {
       return copy;
     } catch (error) {
       console.error('Error duplicating resume:', error);
+      throw error;
+    }
+  }
+
+  static async updateThumbnail(id, thumbnailUrl) {
+    try {
+      const result = await db.query(
+        'UPDATE resumes SET thumbnail_url = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [thumbnailUrl, id]
+      );
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error updating thumbnail:', error);
       throw error;
     }
   }

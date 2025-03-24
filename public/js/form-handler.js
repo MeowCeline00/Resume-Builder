@@ -1,3 +1,4 @@
+// public/js/form-handler.js
 document.addEventListener("DOMContentLoaded", () => {
     const steps = document.querySelectorAll(".form-step");
     const tabs = document.querySelectorAll(".tab");
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentStep < steps.length - 1) {
           currentStep++;
           showStep(currentStep);
+          updatePreview();
         }
       });
     });
@@ -89,36 +91,38 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
   
-        if (section) section.insertAdjacentHTML("beforeend", html);
+        if (section) {
+          section.insertAdjacentHTML("beforeend", html);
+          updatePreview();
+        }
       });
     });
   
-    // Preview page actions
-    const downloadBtn = document.getElementById("btn-download");
-    const shareBtn = document.getElementById("btn-share");
-    const printBtn = document.getElementById("btn-print");
-  
-    if (downloadBtn) {
-      downloadBtn.addEventListener("click", () => {
-        const id = downloadBtn.dataset.id;
-        window.open(`/resume/download/${id}`, '_blank');
-      });
+    // Function to update preview iframe 
+    function updatePreview() {
+      // This is a simple approach - for a real-time update, you would use AJAX
+      // For now, we'll just reload the preview when navigating between steps
+      const previewFrame = document.getElementById('resumePreview');
+      if (previewFrame) {
+        previewFrame.contentWindow.location.reload();
+      }
     }
   
-    if (shareBtn) {
-      shareBtn.addEventListener("click", () => {
-        const id = shareBtn.dataset.id;
-        const url = `${window.location.origin}/resume/preview/${id}`;
-        navigator.clipboard.writeText(url).then(() => {
-          alert("Share link copied to clipboard!");
-        });
-      });
-    }
+    // Automatically update preview when form inputs change
+    const formInputs = document.querySelectorAll('input, textarea');
+    formInputs.forEach(input => {
+      input.addEventListener('change', updatePreview);
+      input.addEventListener('blur', updatePreview);
+    });
   
-    if (printBtn) {
-      printBtn.addEventListener("click", () => {
-        const frame = document.getElementById("resumePDFPreview");
-        if (frame) frame.contentWindow.print();
+    // Form submission handling
+    const resumeForm = document.getElementById('resumeForm');
+    if (resumeForm) {
+      resumeForm.addEventListener('submit', function(event) {
+        // Regular form submission is fine here, but we could use fetch API for AJAX submission
+        // event.preventDefault();
+        // const formData = new FormData(resumeForm);
+        // ... AJAX submission logic here if needed
       });
     }
   });

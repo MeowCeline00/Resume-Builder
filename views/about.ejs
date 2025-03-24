@@ -1,0 +1,193 @@
+<%- include('partials/header') %>
+
+<section class="about-container">
+  <div class="container">
+    <h1 class="about-title">How to Use JiffyCV</h1>
+    
+    <div class="about-content-wrapper">
+      <div class="about-text">
+        <h2>No design skills needed – just fill in your details, pick a template, and download your resume instantly</h2>
+        
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>PERSONAL DETAILS: Easy-to-use form – No technical skills required</h3>
+              <p>Fill in your name, contact information, and professional title to get started with your professional resume.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>CONTACT INFO: Instant preview before finalizing</h3>
+              <p>Add your email, phone number, and social media links to make it easy for employers to contact you.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>PROFESSIONAL SUMMARY: Download as a high-quality PDF</h3>
+              <p>Write a compelling summary that highlights your key skills and career objectives.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>EXPERIENCE: Add your work history with detailed descriptions</h3>
+              <p>Include your work history, job titles, employers, and accomplishments with action verbs.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h3>PROJECTS: Showcase your relevant work</h3>
+              <p>Add details about your most impressive projects that demonstrate your skills and expertise.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h3>EDUCATION: List your academic credentials</h3>
+              <p>Include your degrees, institutions, graduation dates, and academic achievements.</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">7</div>
+            <div class="step-content">
+              <h3>SKILLS & HOBBIES: Complete your professional profile</h3>
+              <p>Add technical skills, soft skills, and personal interests to round out your resume.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cta-container">
+          <a href="/resume" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+      
+      <div class="about-video">
+        <div class="video-container">
+          <p>Tutorial Video</p>
+          <div class="video-placeholder">
+            <img src="/img/icons/video-placeholder.png" alt="Tutorial Video" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-container {
+    padding: 3rem 0;
+    background-color: #f5f5f5;
+  }
+  
+  .about-title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+  
+  .about-content-wrapper {
+    display: flex;
+    gap: 3rem;
+  }
+  
+  .about-text {
+    flex: 3;
+  }
+  
+  .about-text h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+    color: #555;
+    font-weight: normal;
+  }
+  
+  .step-list {
+    margin-bottom: 2rem;
+  }
+  
+  .step-item {
+    display: flex;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+  
+  .step-number {
+    width: 36px;
+    height: 36px;
+    background-color: #e67e22;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .step-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  .step-content p {
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  .about-video {
+    flex: 2;
+  }
+  
+  .video-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .video-placeholder {
+    background-color: #eee;
+    border-radius: 8px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .video-placeholder img {
+    max-width: 64px;
+    opacity: 0.5;
+  }
+  
+  .cta-container {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .about-content-wrapper {
+      flex-direction: column;
+    }
+    
+    .about-video {
+      order: -1;
+    }
+  }
+</style>
+
+<%- include('partials/footer') %>

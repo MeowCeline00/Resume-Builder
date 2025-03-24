@@ -17,9 +17,9 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/resume">Resume</a></li>
-                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/" class="<%= title === 'Home' ? 'active' : '' %>">Home</a></li>
+                    <li><a href="/resume" class="<%= title === 'Resumes' || title === 'Resume Builder' || title === 'Edit Resume' || title === 'Preview Resume' || title === 'Create New Resume' ? 'active' : '' %>">Resume</a></li>
+                    <li><a href="/about" class="<%= title === 'About' ? 'active' : '' %>">About</a></li>
                 </ul>
             </nav>
         </div>

@@ -25,14 +25,16 @@ const createDirsIfNotExist = () => {
 
 createDirsIfNotExist();
 
-// List all resumes
-router.get('/', resumeController.getAllResumes);
+// List all resumes - This will be the main dashboard
+router.get('/', resumeController.getBuilderPage);
+
+// Redirect /builder to the main resume page to prevent duplicate pages
+router.get('/builder', (req, res) => {
+  res.redirect('/resume');
+});
 
 // New resume form
 router.get('/new', resumeController.getNewResumePage);
-
-// Builder page
-router.get('/builder', resumeController.getBuilderPage);
 
 // Create resume
 router.post('/create', resumeController.createResume);

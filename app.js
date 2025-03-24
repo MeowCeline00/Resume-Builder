@@ -43,18 +43,18 @@ app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Content Security Policy with less restrictive settings
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-  );  
-  next();
-});
-
 // Routes
 app.use('/', indexRoutes);
 app.use('/resume', resumeRoutes);
+
+// Custom 404 page
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+    error: {}
+  });
+});
 
 // Error handler
 app.use((err, req, res, next) => {

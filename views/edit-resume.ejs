@@ -1,3 +1,4 @@
+<!-- edit-resume.ejs -->
 <%- include('partials/header') %>
 
 <section class="resume-builder">
@@ -125,8 +126,8 @@
           <!-- Step 7: Skills & Hobbies -->
           <div class="form-step">
             <h2>Skills</h2>
-            <textarea name="skills[technical]" placeholder="Technical Skills (comma separated)"><%= resumeData.skills.technical.join(', ') %></textarea>
-            <textarea name="skills[soft]" placeholder="Soft Skills (comma separated)"><%= resumeData.skills.soft.join(', ') %></textarea>
+            <textarea name="skills[technical]" placeholder="Technical Skills (comma separated)"><%= resumeData.skills.technical ? resumeData.skills.technical.join(', ') : '' %></textarea>
+            <textarea name="skills[soft]" placeholder="Soft Skills (comma separated)"><%= resumeData.skills.soft ? resumeData.skills.soft.join(', ') : '' %></textarea>
 
             <h2>Hobbies</h2>
             <textarea name="personalInfo[hobbies]" placeholder="Hobbies (comma separated)"><%= resumeData.personalInfo.hobbies || '' %></textarea>

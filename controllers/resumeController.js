@@ -1,3 +1,4 @@
+// controllers/resumeController.js
 const Resume = require('../models/Resume');
 const pdfGenerator = require('../utils/pdfGenerator');
 const generateThumbnail = require('../utils/generateThumbnails');

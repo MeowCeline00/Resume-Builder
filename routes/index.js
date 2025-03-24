@@ -9,19 +9,12 @@ router.get('/', (req, res) => {
   });
 });
 
-// About page route - uncomment when about.ejs is available
+// About page route
 router.get('/about', (req, res) => {
   res.render('about', { 
     title: 'About'
   });
 });
 
-// Contact page route - uncomment when contact.ejs is available
-router.get('/contact', (req, res) => {
-  res.render('error', { 
-    title: 'Contact',
-    message: 'Contact page is under construction'
-  });
-});
 
 module.exports = router;

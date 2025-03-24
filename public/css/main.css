@@ -1,3 +1,5 @@
+/* main.css */
+/* Reset and base styles */
 :root {
     --primary-color: #333;
     --secondary-color: #6c757d;
@@ -14,6 +16,7 @@
     --text-secondary: #4a5568;
     --text-muted: #718096;
     --danger-color: #ff3b30;
+    --accent-color: #5cbdf5;
 }
 
 * {
@@ -77,6 +80,7 @@ img {
     padding: 3rem 0;
 }
 
+/* Header & Navigation */
 .main-header {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -133,6 +137,7 @@ img {
     border-bottom: 2px solid var(--primary-color);
 }
 
+/* Hero section */
 .hero {
     text-align: left;
     padding: 2rem 0;
@@ -159,6 +164,7 @@ img {
     gap: 1rem;
 }
 
+/* Buttons */
 .btn {
     display: inline-block;
     font-weight: 500;
@@ -196,6 +202,7 @@ img {
     background-color: #f1f1f1;
 }
 
+/* Features section */
 .features {
     padding: 2rem 0;
 }
@@ -250,6 +257,7 @@ img {
     color: var(--secondary-color);
 }
 
+/* Footer */
 .main-footer {
     background-color: #fff;
     border-top: 1px solid var(--border-color);
@@ -344,17 +352,17 @@ img {
     color: #718096;
 }
 
-/* Dropdown menu for resume actions */
+/* Resume actions dropdown */
 .resume-actions-dropdown {
     display: none;
     position: absolute;
-    right: 5px;
-    bottom: -210px;
+    right: -190px;
+    top: 0;
     background-color: white;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 180px;
-    z-index: 10;
+    z-index: 100;
     padding: 0.5rem 0;
     border: 1px solid #e2e8f0;
 }
@@ -397,8 +405,185 @@ img {
     margin: 0;
 }
 
-/* Responsive Styles */
+/* Resume Builder Page Styles */
+.dashboard {
+    padding: 2rem 0;
+    text-align: left;
+    background-color: #E5E5E5;
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #2B2B2B;
+}
+
+.resume-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 2rem;
+    position: relative;
+}
+
+/* Modal for creating resume */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.field-help {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-top: 0.5rem;
+}
+
+/* Resume Editor Styles */
+.resume-builder {
+    padding: 2rem 0;
+    background-color: #ddd;
+}
+
+.resume-editor {
+    display: flex;
+    gap: 2rem;
+}
+
+.form-section-wrapper {
+    flex: 1;
+    background-color: #f5f5f5;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.preview-panel {
+    width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 500px;
+    overflow: hidden;
+}
+
+.preview-panel iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.progress-tabs {
+    display: flex;
+    list-style: none;
+    margin-bottom: 2rem;
+    padding: 0;
+    overflow-x: auto;
+}
+
+.progress-tabs .tab {
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+    border-bottom: 2px solid #ccc;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.progress-tabs .tab.active {
+    border-bottom: 3px solid black;
+}
+
+.form-step {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-step.active {
+    display: flex;
+}
+
+.step-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.btn-add-entry {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background-color: #eee;
+    border: 2px dashed #aaa;
+    color: #444;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.entry-group {
+    padding: 1rem;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+/* Resume preview image */
+.resume-preview-image {
+    width: 120px;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
+    .resume-editor {
+        flex-direction: column;
+    }
+    
+    .preview-panel {
+        width: 100%;
+        height: 400px;
+    }
+    
+    .resume-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
     .hero-content h1 {
         font-size: 2.5rem;
     }
@@ -415,9 +600,10 @@ img {
     .btn {
         width: 100%;
     }
-    
-    .resume-card-grid {
-        grid-template-columns: repeat(2, 1fr);
+
+    .resume-actions-dropdown {
+        right: 0;
+        top: 100%;
     }
 }
 
@@ -446,121 +632,9 @@ img {
     }
     
     .resume-actions-dropdown {
-        right: 50%;
-        transform: translateX(50%);
-        bottom: -210px;
+        right: 0;
+        left: 0;
+        width: 100%;
+        transform: none;
     }
-}
-
-/* Resume Builder Page Styles */
-.dashboard {
-    padding: 2rem 0;
-    text-align: left;
-    background-color: #E5E5E5;
-    min-height: 100vh;
-}
-
-.dashboard-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    color: #2B2B2B;
-}
-
-.resume-grid {
-    display: flex;
-    gap: 2rem;
-    justify-content: flex-start;
-}
-
-.resume-card {
-    background-color: #fff;
-    width: 240px;
-    height: 320px;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.resume-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-}
-
-.new-resume {
-    font-size: 1.2rem;
-    font-weight: 500;
-}
-
-.plus-icon {
-    font-size: 3rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.resume-content img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 1rem;
-}
-
-.resume-content h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.resume-content p {
-    font-size: 0.9rem;
-    color: gray;
-}
-
-.resume-options {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.options-btn {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 30px;
-    right: 10px;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 0.5rem 0;
-    width: 140px;
-}
-
-.dropdown-menu li {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.dropdown-menu li:hover {
-    background-color: #f4f4f4;
-}
-
-.dropdown-menu .delete {
-    color: red;
-}
-
-.dropdown-menu .delete:hover {
-    background-color: #ffe6e6;
 }
