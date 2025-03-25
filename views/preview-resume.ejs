@@ -130,24 +130,32 @@
             <% if (resume.skills && (resume.skills.technical || resume.skills.soft)) { %>
             <h3>SKILLS</h3>
             <div class="skills-container">
-              <% if (resume.skills.technical && resume.skills.technical.length > 0) { %>
+              <% if (resume.skills.technical) { %>
                 <div class="skills-group">
                   <h4>Technical Skills</h4>
                   <ul class="skills-list">
-                    <% resume.skills.technical.forEach(skill => { %>
-                      <li><%= skill %></li>
-                    <% }) %>
+                    <% if (Array.isArray(resume.skills.technical)) { %>
+                      <% resume.skills.technical.forEach(skill => { %>
+                        <li><%= skill %></li>
+                      <% }) %>
+                    <% } else { %>
+                      <li><%= resume.skills.technical %></li>
+                    <% } %>
                   </ul>
                 </div>
               <% } %>
               
-              <% if (resume.skills.soft && resume.skills.soft.length > 0) { %>
+              <% if (resume.skills.soft) { %>
                 <div class="skills-group">
                   <h4>Soft Skills</h4>
                   <ul class="skills-list">
-                    <% resume.skills.soft.forEach(skill => { %>
-                      <li><%= skill %></li>
-                    <% }) %>
+                    <% if (Array.isArray(resume.skills.soft)) { %>
+                      <% resume.skills.soft.forEach(skill => { %>
+                        <li><%= skill %></li>
+                      <% }) %>
+                    <% } else { %>
+                      <li><%= resume.skills.soft %></li>
+                    <% } %>
                   </ul>
                 </div>
               <% } %>

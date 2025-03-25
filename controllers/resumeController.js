@@ -230,7 +230,7 @@ const resumeController = {
       if (!resume) {
         return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
       }
-
+  
       const resumeData = {
         id: resume.id,
         personalInfo: safeParseJSON(resume.personal_info),
@@ -241,13 +241,22 @@ const resumeController = {
         templateName: resume.template_name,
         name: resume.name
       };
-
+  
+      // ✅ Convert string to array for safe EJS iteration
+      if (typeof resumeData.skills.technical === 'string') {
+        resumeData.skills.technical = resumeData.skills.technical.split(',').map(s => s.trim());
+      }
+      if (typeof resumeData.skills.soft === 'string') {
+        resumeData.skills.soft = resumeData.skills.soft.split(',').map(s => s.trim());
+      }
+  
       res.render('preview-resume', { title: 'Preview Resume', resume: resumeData });
     } catch (error) {
       console.error('Error loading preview page:', error);
       res.status(500).render('error', { title: 'Error', message: 'Failed to load preview' });
     }
   },
+  
 
   /**
    * Download a resume as PDF
