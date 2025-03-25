@@ -26,13 +26,21 @@
 
             <!-- Dropdown Menu -->
             <div class="resume-options">
-              <button class="options-btn" onclick="toggleDropdown('<%= resume.id %>')">⋮</button>
-              <ul class="dropdown-menu" id="dropdown-<%= resume.id %>">
-                <li><a href="/resume/preview/<%= resume.id %>">Open</a></li>
-                <li><a href="#" onclick="renameResume('<%= resume.id %>')">Rename</a></li>
-                <li><a href="/resume/duplicate/<%= resume.id %>">Duplicate</a></li>
-                <li class="delete"><a href="#" onclick="deleteResume('<%= resume.id %>')">Delete</a></li>
-              </ul>
+              <button class="options-btn card-menu" data-resume-id="<%= resume.id %>">⋮</button>
+              <div class="resume-actions-dropdown" id="actions-dropdown-<%= resume.id %>">
+                <a href="/resume/preview/<%= resume.id %>" class="action-item">
+                  <span class="action-icon">👁️</span>Open
+                </a>
+                <a href="#" class="action-item" onclick="renameResume('<%= resume.id %>'); return false;">
+                  <span class="action-icon">✏️</span>Rename
+                </a>
+                <a href="/resume/duplicate/<%= resume.id %>" class="action-item">
+                  <span class="action-icon">📋</span>Duplicate
+                </a>
+                <a href="#" class="action-item delete-action" onclick="deleteResume('<%= resume.id %>'); return false;">
+                  <span class="action-icon">🗑️</span>Delete
+                </a>
+              </div>
             </div>
           </div>
         <% }) %>
@@ -44,15 +52,47 @@
 </section>
 
 <script>
-  function toggleDropdown(id) {
-    const menu = document.getElementById(`dropdown-${id}`);
-    menu.classList.toggle("show");
-    document.addEventListener("click", (e) => {
-      if (!menu.contains(e.target)) {
-        menu.classList.remove("show");
+  // Handle menu icon clicks for dropdown menus
+  const menuButtons = document.querySelectorAll('.card-menu');
+  menuButtons.forEach(btn => {
+    btn.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const resumeId = this.getAttribute('data-resume-id');
+      const dropdown = document.getElementById(`actions-dropdown-${resumeId}`);
+      
+      // Position the dropdown relative to the viewport
+      if (dropdown) {
+        const rect = this.getBoundingClientRect();
+        // Check if there's enough space to the right
+        const spaceToRight = window.innerWidth - rect.right;
+        if (spaceToRight < 200) {
+          dropdown.style.left = 'auto';
+          dropdown.style.right = '0';
+        } else {
+          dropdown.style.left = '100%';
+          dropdown.style.right = 'auto';
+        }
+        dropdown.style.top = '0';
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.resume-actions-dropdown.active').forEach(el => {
+          if (el !== dropdown) {
+            el.classList.remove('active');
+          }
+        });
+        
+        // Toggle this dropdown
+        dropdown.classList.toggle('active');
       }
     });
-  }
+  });
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    document.querySelectorAll('.resume-actions-dropdown.active').forEach(dropdown => {
+      dropdown.classList.remove('active');
+    });
+  });
 
   function deleteResume(id) {
     if (confirm("Are you sure you want to delete this resume?")) {

@@ -25,6 +25,26 @@ const createDirsIfNotExist = () => {
 
 createDirsIfNotExist();
 
+// Helper function to process skills data
+const processSkills = (skills) => {
+  if (!skills) return [];
+  
+  // If skills is already an array, return it
+  if (Array.isArray(skills)) return skills;
+  
+  // If skills is a string, split by commas and trim each skill
+  if (typeof skills === 'string') {
+    return skills.split(',').map(skill => skill.trim()).filter(skill => skill);
+  }
+  
+  // If skills is an object with values property (from form submission)
+  if (skills.values && Array.isArray(skills.values)) {
+    return skills.values;
+  }
+  
+  return [];
+};
+
 // List all resumes - This will be the main dashboard
 router.get('/', resumeController.getBuilderPage);
 
@@ -44,6 +64,30 @@ router.get('/edit/:id', resumeController.getEditPage);
 
 // Update resume
 router.post('/update/:id', resumeController.updateResume);
+
+// Save resume data without preview generation or redirect to preview
+router.post('/save/:id', async (req, res) => {
+  try {
+    const resumeData = {
+      personalInfo: req.body.personalInfo || {},
+      education: req.body.education || [{}],
+      experience: req.body.experience || [{}],
+      projects: req.body.projects || [{}],
+      skills: processSkills(req.body.skills),
+      templateName: req.body.templateName || 'modern'
+    };
+    
+    await Resume.update(req.params.id, resumeData);
+    res.redirect('/resume');
+  } catch (error) {
+    console.error('Error saving resume:', error);
+    res.status(500).render('error', {
+      title: 'Error',
+      message: 'Failed to save resume: ' + error.message,
+      error: process.env.NODE_ENV === 'development' ? error : {}
+    });
+  }
+});
 
 // Preview resume
 router.get('/preview/:id', resumeController.previewResume);
@@ -87,15 +131,33 @@ router.post('/:id/rename', async (req, res) => {
 router.post('/:id/duplicate', async (req, res) => {
   try {
     const copy = await Resume.duplicate(req.params.id);
-    res.json({
-      success: true,
-      resume: copy
-    });
+    
+    // Check if the request is an AJAX/JSON request
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({
+        success: true,
+        resume: copy
+      });
+    }
+    
+    // For regular form submissions, redirect to the main resume page
+    res.redirect('/resume');
   } catch (error) {
     console.error('Error duplicating resume:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Duplicate failed'
+    
+    // Handle error for AJAX/JSON requests
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Duplicate failed'
+      });
+    }
+    
+    // Handle error for regular form submissions
+    res.status(500).render('error', {
+      title: 'Error',
+      message: 'Failed to duplicate resume: ' + error.message,
+      error: process.env.NODE_ENV === 'development' ? error : {}
     });
   }
 });

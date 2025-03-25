@@ -4,9 +4,40 @@ const pdfGenerator = require('../utils/pdfGenerator');
 const generateThumbnail = require('../utils/generateThumbnails');
 
 /**
- * Safely parse JSON data, returning an empty object if parsing fails
- * @param {string|object} data - The data to parse
- * @returns {object} - Parsed JSON or empty object if parsing fails
+ * Process skills from form data into structured arrays
+ */
+function processSkills(skillsData) {
+  if (!skillsData) return { technical: [], soft: [] };
+
+  const result = { technical: [], soft: [] };
+
+  // Process technical skills
+  if (skillsData.technical) {
+    if (Array.isArray(skillsData.technical)) {
+      result.technical = skillsData.technical;
+    } else if (typeof skillsData.technical === 'string') {
+      result.technical = skillsData.technical.split(',')
+        .map(skill => skill.trim())
+        .filter(Boolean);
+    }
+  }
+
+  // Process soft skills
+  if (skillsData.soft) {
+    if (Array.isArray(skillsData.soft)) {
+      result.soft = skillsData.soft;
+    } else if (typeof skillsData.soft === 'string') {
+      result.soft = skillsData.soft.split(',')
+        .map(skill => skill.trim())
+        .filter(Boolean);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Safely parse JSON data
  */
 function safeParseJSON(data) {
   try {
@@ -18,19 +49,16 @@ function safeParseJSON(data) {
 }
 
 const resumeController = {
-  /**
-   * Get all resumes and render the resume list page
-   */
   getAllResumes: async (req, res) => {
     try {
       const resumes = await Resume.getAll() || [];
       const resumeList = resumes.map(resume => ({
         id: resume.id,
-        name: safeParseJSON(resume.personal_info).name || resume.name || 'Unnamed Resume',
-        templateName: resume.template_name,
-        updatedAt: new Date(resume.updated_at).toDateString(),
-        is_locked: resume.is_locked,
-        thumbnail_url: resume.thumbnail_url
+        name: resume.name || 'Unnamed Resume',
+        templateName: resume.templateName || resume.template_name,
+        updatedAt: new Date(resume.updatedAt || resume.updated_at).toDateString(),
+        is_locked: resume.isLocked || resume.is_locked,
+        thumbnail_url: resume.thumbnailUrl || resume.thumbnail_url
       }));
 
       res.render('resume-list', { title: 'Resumes', resumes: resumeList });
@@ -40,31 +68,35 @@ const resumeController = {
     }
   },
 
-  /**
-   * Render the builder page with available resumes
-   */
   getBuilderPage: async (req, res) => {
     try {
       const resumes = await Resume.getAll() || [];
+      
+      // Map resumes to a safe format for the frontend to prevent undefined errors
+      const formattedResumes = resumes.map(resume => ({
+        id: resume.id,
+        name: resume.name || 'Unnamed Resume',
+        title: resume.title || resume.name || 'Unnamed Resume',
+        updatedAt: resume.updatedAt ? new Date(resume.updatedAt).toLocaleDateString() : 
+                  (resume.updated_at ? new Date(resume.updated_at).toLocaleDateString() : new Date().toLocaleDateString()),
+        is_locked: resume.isLocked !== undefined ? resume.isLocked : (resume.is_locked || false),
+        thumbnail_url: resume.thumbnailUrl || resume.thumbnail_url || null
+      }));
+      
       res.render('builder', {
         title: 'Resume Builder',
-        resumes: resumes.map(resume => ({
-          id: resume.id,
-          name: resume.name || safeParseJSON(resume.personal_info).name || 'Unnamed Resume',
-          updatedAt: new Date(resume.updated_at).toLocaleDateString(),
-          is_locked: resume.is_locked,
-          thumbnail_url: resume.thumbnail_url
-        }))
+        resumes: formattedResumes
       });
     } catch (error) {
       console.error('Error loading builder page:', error);
-      res.status(500).render('error', { title: 'Error', message: 'Failed to load builder page' });
+      res.status(500).render('error', { 
+        title: 'Error', 
+        message: 'Failed to load builder page: ' + error.message,
+        error: process.env.NODE_ENV === 'development' ? error : {}
+      });
     }
   },
 
-  /**
-   * Render the page for creating a new resume
-   */
   getNewResumePage: (req, res) => {
     res.render('new-resume', {
       title: 'Create New Resume',
@@ -78,33 +110,23 @@ const resumeController = {
     });
   },
 
-  /**
-   * Create a new resume from submitted data
-   */
   createResume: async (req, res) => {
     try {
-      // Extract the title from the request body
       const title = req.body.title || 'Untitled Resume';
-      
       const resumeData = {
-        title: title, 
+        title: title,
         personalInfo: req.body.personalInfo || {
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          jobTitle: ""
+          firstName: "", lastName: "", email: "", phone: "", jobTitle: ""
         },
         education: req.body.education || [{}],
         experience: req.body.experience || [{}],
         projects: req.body.projects || [{}],
-        skills: req.body.skills || { technical: [], soft: [] },
+        skills: processSkills(req.body.skills),
         templateName: req.body.templateName || 'modern'
       };
-      
+
       const newResume = await Resume.create(resumeData);
-      
-      // Respond with JSON for AJAX requests or redirect for form submissions
+
       if (req.xhr || req.headers.accept.includes('application/json')) {
         res.json({ success: true, id: newResume.id });
       } else {
@@ -112,13 +134,11 @@ const resumeController = {
       }
     } catch (error) {
       console.error('Error creating resume:', error);
-      
-      // Handle errors for both AJAX and form submissions
       if (req.xhr || req.headers.accept.includes('application/json')) {
         res.status(500).json({ success: false, error: error.message });
       } else {
-        res.status(500).render('error', { 
-          title: 'Error', 
+        res.status(500).render('error', {
+          title: 'Error',
           message: 'Failed to create resume',
           error: process.env.NODE_ENV === 'development' ? error : {}
         });
@@ -126,16 +146,16 @@ const resumeController = {
     }
   },
 
-  /**
-   * Render the edit page for a specific resume
-   */
   getEditPage: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
       if (!resume) {
         return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
       }
-      
+
+      // Check if resume is locked and pass that info to the view
+      const isLocked = resume.is_locked || false;
+
       res.render('edit-resume', {
         title: 'Edit Resume',
         resumeData: {
@@ -146,7 +166,8 @@ const resumeController = {
           projects: safeParseJSON(resume.projects || '[]'),
           skills: safeParseJSON(resume.skills),
           templateName: resume.template_name,
-          name: resume.name
+          name: resume.name,
+          is_locked: isLocked
         }
       });
     } catch (error) {
@@ -155,75 +176,124 @@ const resumeController = {
     }
   },
 
-  /**
-   * Update an existing resume with submitted data
-   */
   updateResume: async (req, res) => {
     try {
       console.log("Updating resume...", req.params.id);
-      
+
+      // Check if resume exists and is locked
+      const resume = await Resume.getById(req.params.id);
+      if (!resume) {
+        return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
+      }
+
+      // Check if resume is locked
+      if (resume.is_locked) {
+        return res.status(403).render('error', { 
+          title: 'Locked', 
+          message: 'This resume is locked and cannot be modified. Unlock it first to make changes.' 
+        });
+      }
+
       const resumeData = {
         personalInfo: req.body.personalInfo || {},
         education: req.body.education || [{}],
         experience: req.body.experience || [{}],
         projects: req.body.projects || [{}],
-        skills: req.body.skills || { technical: [], soft: [] },
+        skills: processSkills(req.body.skills),
         templateName: req.body.templateName || 'modern'
       };
-      
-      // Log the data being updated
+
       console.log("Update data:", JSON.stringify(resumeData, null, 2));
-      
+
       const updatedResume = await Resume.update(req.params.id, resumeData);
-  
-      // Generate the thumbnail
+
       try {
         const previewUrl = `${req.protocol}://${req.get('host')}/resume/preview/${updatedResume.id}`;
         await generateThumbnail(updatedResume.id, previewUrl);
       } catch (thumbnailError) {
         console.error('Error generating thumbnail:', thumbnailError);
-        // Continue even if thumbnail generation fails
       }
-  
-      // Redirect to preview page
+
       res.redirect(`/resume/preview/${updatedResume.id}`);
     } catch (error) {
       console.error('Error updating resume:', error);
-      res.status(500).render('error', { 
-        title: 'Error', 
+      res.status(500).render('error', {
+        title: 'Error',
         message: 'Failed to update resume: ' + error.message,
         error: process.env.NODE_ENV === 'development' ? error : {}
       });
     }
   },
 
-  /**
-   * Delete a resume by ID
-   */
   deleteResume: async (req, res) => {
     try {
-      await Resume.delete(req.params.id);
+      // Check if resume exists and is locked
+      const resume = await Resume.getById(req.params.id);
+      if (!resume) {
+        return res.status(404).json({ success: false, error: 'Resume not found' });
+      }
       
-      // Check if this is an AJAX request
+      // Check if resume is locked before deletion
+      if (resume.is_locked) {
+        if (req.xhr || req.headers.accept.includes('application/json')) {
+          return res.status(403).json({ 
+            success: false, 
+            error: 'This resume is locked and cannot be deleted. Unlock it first to delete.' 
+          });
+        } else {
+          return res.status(403).render('error', { 
+            title: 'Locked', 
+            message: 'This resume is locked and cannot be deleted. Unlock it first to delete.' 
+          });
+        }
+      }
+
+      await Resume.delete(req.params.id);
+
       if (req.xhr || req.headers.accept.includes('application/json')) {
         return res.json({ success: true });
+      }
+
+      res.redirect('/resume');
+    } catch (error) {
+      console.error('Error deleting resume:', error);
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        return res.status(500).json({ success: false, error: error.message });
+      }
+
+      res.status(500).render('error', { title: 'Error', message: 'Failed to delete resume' });
+    }
+  },
+  
+  toggleLockResume: async (req, res) => {
+    try {
+      const resume = await Resume.getById(req.params.id);
+      if (!resume) {
+        return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
+      }
+      
+      const newLockStatus = !resume.is_locked;
+      const updatedResume = await Resume.toggleLock(req.params.id, newLockStatus);
+      
+      if (req.xhr || req.headers.accept.includes('application/json')) {
+        return res.json({ 
+          success: true, 
+          is_locked: updatedResume.is_locked,
+          message: updatedResume.is_locked ? 'Resume locked successfully' : 'Resume unlocked successfully'
+        });
       }
       
       res.redirect('/resume');
     } catch (error) {
-      console.error('Error deleting resume:', error);
-      
+      console.error('Error toggling lock status:', error);
       if (req.xhr || req.headers.accept.includes('application/json')) {
         return res.status(500).json({ success: false, error: error.message });
       }
       
-      res.status(500).render('error', { title: 'Error', message: 'Failed to delete resume' });
+      res.status(500).render('error', { title: 'Error', message: 'Failed to toggle lock status' });
     }
   },
 
-  /**
-   * Preview a resume by ID
-   */
   previewResume: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
@@ -239,7 +309,8 @@ const resumeController = {
         projects: safeParseJSON(resume.projects || '[]'),
         skills: safeParseJSON(resume.skills),
         templateName: resume.template_name,
-        name: resume.name
+        name: resume.name,
+        is_locked: resume.is_locked // Make sure lock status is available in preview
       };
 
       res.render('preview-resume', { title: 'Preview Resume', resume: resumeData });
@@ -249,16 +320,13 @@ const resumeController = {
     }
   },
 
-  /**
-   * Download a resume as PDF
-   */
   downloadResume: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
       if (!resume) {
         return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
       }
-      
+
       const resumeData = {
         id: resume.id,
         personalInfo: safeParseJSON(resume.personal_info),
@@ -269,13 +337,13 @@ const resumeController = {
         templateName: resume.template_name,
         name: resume.name
       };
-      
+
       const pdfBuffer = await pdfGenerator.generatePDF(resumeData);
-      
-      const fileName = resumeData.personalInfo.firstName 
+
+      const fileName = resumeData.personalInfo.firstName
         ? `${resumeData.personalInfo.firstName}_${resumeData.personalInfo.lastName || 'resume'}.pdf`
         : `${resumeData.name || 'resume'}.pdf`;
-        
+
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
       res.send(pdfBuffer);
@@ -285,25 +353,35 @@ const resumeController = {
     }
   },
 
-  /**
-   * Generate and save a thumbnail of the resume preview
-   */
   saveResumePreview: async (req, res) => {
     try {
       const resume = await Resume.getById(req.params.id);
       if (!resume) {
         return res.status(404).render('error', { title: 'Not Found', message: 'Resume not found' });
       }
-  
+
+      // Check if resume is locked
+      if (resume.is_locked) {
+        return res.status(403).render('error', { 
+          title: 'Locked', 
+          message: 'This resume is locked and cannot be modified. Unlock it first to make changes.' 
+        });
+      }
+
       const previewUrl = `${req.protocol}://${req.get('host')}/resume/preview/${resume.id}`;
-      await generateThumbnail(resume.id, previewUrl);
-  
+      try {
+        await generateThumbnail(resume.id, previewUrl);
+      } catch (thumbnailError) {
+        console.error('Error generating thumbnail:', thumbnailError);
+        // Continue even if thumbnail generation fails
+      }
+
       res.redirect('/resume');
     } catch (error) {
       console.error('Error saving resume preview:', error);
       res.status(500).render('error', { title: 'Error', message: 'Failed to save preview' });
     }
-  }  
+  }
 };
 
 module.exports = resumeController;

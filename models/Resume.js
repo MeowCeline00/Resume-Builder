@@ -2,7 +2,7 @@
 const db = require('./db');
 
 class Resume {
-  static async create({ title, personalInfo = {}, education = [], experience = [], projects = [], skills = {}, templateName = 'modern', thumbnail = null }) {
+  static async create({ title, personalInfo = {}, education = [], experience = [], projects = [], skills = [], templateName = 'modern', thumbnail = null }) {
     try {
       // Ensure title is not null
       if (!title) {
@@ -25,7 +25,9 @@ class Resume {
           thumbnail
         ]
       );
-      return result.rows[0];
+      
+      // Return a plain object with camelCase properties for consistent frontend use
+      return this.formatResumeData(result.rows[0]);
     } catch (error) {
       console.error('Error creating resume:', error);
       throw error;
@@ -35,6 +37,7 @@ class Resume {
   static async getById(id) {
     try {
       const result = await db.query('SELECT * FROM resumes WHERE id = $1', [id]);
+      if (result.rows.length === 0) return null;
       return result.rows[0];
     } catch (error) {
       console.error('Error fetching resume by ID:', error);
@@ -45,7 +48,8 @@ class Resume {
   static async getAll() {
     try {
       const result = await db.query('SELECT * FROM resumes ORDER BY updated_at DESC');
-      return result.rows;
+      // Return array of formatted resume objects for frontend consistency
+      return result.rows.map(row => this.formatResumeData(row));
     } catch (error) {
       console.error('Error fetching resumes:', error);
       throw error;
@@ -60,12 +64,17 @@ class Resume {
         throw new Error('Resume not found');
       }
       
+      // Check if resume is locked before updating
+      if (existingResume.is_locked) {
+        throw new Error('Cannot update a locked resume');
+      }
+      
       // Use existing values if new ones are not provided
       const updatedPersonalInfo = personalInfo || JSON.parse(existingResume.personal_info || '{}');
       const updatedEducation = education || JSON.parse(existingResume.education || '[]');
       const updatedExperience = experience || JSON.parse(existingResume.experience || '[]');
       const updatedProjects = projects || JSON.parse(existingResume.projects || '[]');
-      const updatedSkills = skills || JSON.parse(existingResume.skills || '{}');
+      const updatedSkills = skills || JSON.parse(existingResume.skills || '[]');
       const updatedTemplateName = templateName || existingResume.template_name;
       const updatedThumbnail = thumbnail || existingResume.thumbnail_url;
       
@@ -86,7 +95,8 @@ class Resume {
           id
         ]
       );
-      return result.rows[0];
+      
+      return this.formatResumeData(result.rows[0]);
     } catch (error) {
       console.error('Error updating resume:', error);
       throw error;
@@ -99,11 +109,22 @@ class Resume {
         throw new Error('New title is required');
       }
       
+      // Check if resume is locked before renaming
+      const existingResume = await this.getById(id);
+      if (!existingResume) {
+        throw new Error('Resume not found');
+      }
+      
+      if (existingResume.is_locked) {
+        throw new Error('Cannot rename a locked resume');
+      }
+      
       const result = await db.query(
         'UPDATE resumes SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [newTitle, id]
       );
-      return result.rows[0];
+      
+      return this.formatResumeData(result.rows[0]);
     } catch (error) {
       console.error('Error renaming resume:', error);
       throw error;
@@ -116,7 +137,8 @@ class Resume {
         'UPDATE resumes SET is_locked = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [lockStatus, id]
       );
-      return result.rows[0];
+      
+      return this.formatResumeData(result.rows[0]);
     } catch (error) {
       console.error('Error toggling lock:', error);
       throw error;
@@ -127,12 +149,16 @@ class Resume {
     try {
       // Check if resume is locked before deleting
       const resume = await this.getById(id);
-      if (resume && resume.is_locked) {
+      if (!resume) {
+        throw new Error('Resume not found');
+      }
+      
+      if (resume.is_locked) {
         throw new Error('Cannot delete a locked resume');
       }
       
-      const result = await db.query('DELETE FROM resumes WHERE id = $1 RETURNING *', [id]);
-      return result.rows[0];
+      const result = await db.query('DELETE FROM resumes WHERE id = $1 RETURNING id', [id]);
+      return { id: result.rows[0].id };
     } catch (error) {
       console.error('Error deleting resume:', error);
       throw error;
@@ -141,16 +167,16 @@ class Resume {
 
   static async duplicate(id) {
     try {
-      const original = await Resume.getById(id);
+      const original = await this.getById(id);
       if (!original) throw new Error('Resume not found');
 
-      const copy = await Resume.create({
+      const copy = await this.create({
         title: `${original.name} Copy`,
         personalInfo: JSON.parse(original.personal_info || '{}'),
         education: JSON.parse(original.education || '[]'),
         experience: JSON.parse(original.experience || '[]'),
         projects: JSON.parse(original.projects || '[]'),
-        skills: JSON.parse(original.skills || '{}'),
+        skills: JSON.parse(original.skills || '[]'),
         templateName: original.template_name,
         thumbnail: original.thumbnail_url
       });
@@ -164,15 +190,47 @@ class Resume {
 
   static async updateThumbnail(id, thumbnailUrl) {
     try {
+      // Check if resume is locked before updating thumbnail
+      const existingResume = await this.getById(id);
+      if (!existingResume) {
+        throw new Error('Resume not found');
+      }
+      
+      if (existingResume.is_locked) {
+        throw new Error('Cannot update thumbnail of a locked resume');
+      }
+      
       const result = await db.query(
         'UPDATE resumes SET thumbnail_url = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [thumbnailUrl, id]
       );
-      return result.rows[0];
+      
+      return this.formatResumeData(result.rows[0]);
     } catch (error) {
       console.error('Error updating thumbnail:', error);
       throw error;
     }
+  }
+
+  // Helper method to format resume data for consistent frontend use
+  static formatResumeData(row) {
+    if (!row) return null;
+    
+    return {
+      id: row.id,
+      title: row.name,
+      name: row.name, // Keep both for backward compatibility
+      templateName: row.template_name,
+      template_name: row.template_name, // Keep both for backward compatibility
+      thumbnailUrl: row.thumbnail_url,
+      thumbnail_url: row.thumbnail_url, // Keep both for backward compatibility
+      isLocked: row.is_locked,
+      is_locked: row.is_locked, // Keep both for backward compatibility
+      createdAt: row.created_at,
+      created_at: row.created_at, // Keep both for backward compatibility
+      updatedAt: row.updated_at,
+      updated_at: row.updated_at // Keep both for backward compatibility
+    };
   }
 }
 
