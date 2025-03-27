@@ -1,0 +1,57 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for generated thumbnails
+public/img/thumbnails/*
+!public/img/thumbnails/.gitkeep
+
+# Directory for generated templates
+public/img/templates/*
+!public/img/templates/.gitkeep
+
+# Directory for generated previews
+public/img/previews/*
+!public/img/previews/.gitkeep
+
+# Coverage directory
+coverage/
+
+# Dependency directories
+.npm/
+.npmrc
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variables file
+.env
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db

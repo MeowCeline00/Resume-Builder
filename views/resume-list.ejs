@@ -1,0 +1,123 @@
+<%- include('partials/header') %>
+
+<section class="dashboard">
+  <div class="container">
+    <h2 class="dashboard-title">Resumes</h2>
+    <div class="resume-grid">
+      <!-- Create New Resume Card -->
+      <div class="resume-card new-resume" onclick="window.location.href='/resume/builder'">
+        <span class="plus-icon">+</span>
+        <p>Create a new resume</p>
+      </div>
+
+      <!-- Existing Resume Cards -->
+      <% if (resumes.length > 0) { %>
+        <% resumes.forEach(resume => { %>
+          <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
+            <div class="resume-thumbnail">
+              <!-- Show preview image if available, else fallback icon -->
+              <img src="/img/templates/<%= resume.id %>.png" alt="Preview Thumbnail" onerror="this.src='/img/icons/template-icon.png'" />
+
+            </div>
+            <div class="resume-content">
+              <h3><%= resume.name %></h3>
+              <p>Last updated: <%= resume.updatedAt %></p>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <div class="resume-options">
+              <button class="options-btn card-menu" data-resume-id="<%= resume.id %>">⋮</button>
+              <div class="resume-actions-dropdown" id="actions-dropdown-<%= resume.id %>">
+                <a href="/resume/preview/<%= resume.id %>" class="action-item">
+                  <span class="action-icon">👁️</span>Open
+                </a>
+                <a href="#" class="action-item" onclick="renameResume('<%= resume.id %>'); return false;">
+                  <span class="action-icon">✏️</span>Rename
+                </a>
+                <a href="/resume/duplicate/<%= resume.id %>" class="action-item">
+                  <span class="action-icon">📋</span>Duplicate
+                </a>
+                <a href="#" class="action-item delete-action" onclick="deleteResume('<%= resume.id %>'); return false;">
+                  <span class="action-icon">🗑️</span>Delete
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No resumes available. Click "Create a new resume" to start.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Handle menu icon clicks for dropdown menus
+  const menuButtons = document.querySelectorAll('.card-menu');
+  menuButtons.forEach(btn => {
+    btn.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const resumeId = this.getAttribute('data-resume-id');
+      const dropdown = document.getElementById(`actions-dropdown-${resumeId}`);
+      
+      // Position the dropdown relative to the viewport
+      if (dropdown) {
+        const rect = this.getBoundingClientRect();
+        // Check if there's enough space to the right
+        const spaceToRight = window.innerWidth - rect.right;
+        if (spaceToRight < 200) {
+          dropdown.style.left = 'auto';
+          dropdown.style.right = '0';
+        } else {
+          dropdown.style.left = '100%';
+          dropdown.style.right = 'auto';
+        }
+        dropdown.style.top = '0';
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.resume-actions-dropdown.active').forEach(el => {
+          if (el !== dropdown) {
+            el.classList.remove('active');
+          }
+        });
+        
+        // Toggle this dropdown
+        dropdown.classList.toggle('active');
+      }
+    });
+  });
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    document.querySelectorAll('.resume-actions-dropdown.active').forEach(dropdown => {
+      dropdown.classList.remove('active');
+    });
+  });
+
+  function deleteResume(id) {
+    if (confirm("Are you sure you want to delete this resume?")) {
+      fetch(`/resume/delete/${id}`, {
+        method: "POST"
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  }
+
+  function renameResume(id) {
+    const newName = prompt("Enter a new name for the resume:");
+    if (newName) {
+      fetch(`/resume/rename/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ newName })
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

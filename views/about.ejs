@@ -1,0 +1,213 @@
+<%- include('partials/header') %>
+
+<section class="about-container">
+  <div class="container">
+    <h1 class="about-title">How to Use JiffyCV</h1>
+
+    <div class="about-content-wrapper">
+      <div class="about-text">
+        <h2>Just enter your info, pick a template, and download your resume instantly</h2>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Personal Info</h3>
+              <p>Enter your name, title, and contact details to begin.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Contact</h3>
+              <p>Add email, phone, and LinkedIn so employers can reach you.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Summary</h3>
+              <p>Write a short paragraph that highlights your skills.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Experience</h3>
+              <p>Add your work history with job titles and key points.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h3>Projects</h3>
+              <p>Include your most relevant personal or team projects.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h3>Education</h3>
+              <p>List your degrees, schools, and graduation dates.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">7</div>
+            <div class="step-content">
+              <h3>Skills & Hobbies</h3>
+              <p>Finish by adding your top skills and interests.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-container">
+          <a href="/resume" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+
+      <div class="about-video">
+        <div class="video-container">
+          <video controls style="width: 100%; max-width: 100%; height: auto; border-radius: 12px; aspect-ratio: 16/9; display: block;">
+            <source src="/videos/demo-of-using-app.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-container {
+    padding: 3rem 1rem;
+    background-color: #f0f9ff;
+  }
+
+  .about-title {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    color: #333;
+    text-align: center;
+  }
+
+  .about-content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: space-between;
+  }
+
+  .about-text {
+    flex: 1 1 60%;
+  }
+
+  .about-text h2 {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    color: #555;
+    text-align: center;
+  }
+
+  .step-list {
+    margin-bottom: 2rem;
+  }
+
+  .step-item {
+    display: flex;
+    margin-bottom: 1.2rem;
+    align-items: flex-start;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    background-color: #f5a623;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .step-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+
+  .step-content p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .about-video {
+    flex: 1 1 35%;
+    min-width: 280px;
+    padding-top: 10%;
+  }
+
+  .video-container {
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    padding: 7px;
+    overflow: hidden;
+  }
+
+  .cta-container {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .btn-primary {
+    color: #fff;
+    background-color: #f5a623;
+    padding: 0.7rem 2rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .btn-primary:hover {
+    background-color: #f59e42;
+  }
+
+  @media (max-width: 768px) {
+    .about-content-wrapper {
+      flex-direction: column;
+    }
+
+    .about-video {
+      order: -1;
+      margin-bottom: 2rem;
+    }
+
+    .about-text h2 {
+      font-size: 1.1rem;
+    }
+
+    .step-content h3 {
+      font-size: 0.95rem;
+    }
+
+    .step-content p {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<%- include('partials/footer') %>

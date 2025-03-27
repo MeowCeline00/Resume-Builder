@@ -1,0 +1,398 @@
+<%- include('partials/header') %>
+
+<div class="dashboard">
+  <div class="container">
+    <h1 class="dashboard-title">Resumes</h1>
+
+    <div class="resume-grid">
+      <!-- Create a new resume card -->
+      <div class="resume-card new-resume-card" onclick="showModal()">
+        <div class="card-content">
+          <div class="create-icon">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 12H19" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Create a new resume</h3>
+        </div>
+      </div>
+
+      <!-- Existing resumes -->
+      <% if (resumes && resumes.length > 0) { %>
+        <% resumes.forEach(function(resume) { %>
+          <div class="resume-card existing-resume-card" data-resume-id="<%= resume.id %>">
+            <div class="card-content">
+              <% if (resume.thumbnail_url) { %>
+                <img src="<%= resume.thumbnail_url %>" alt="Resume Preview" class="resume-preview-image">
+              <% } else { %>
+                <div class="resume-icon">
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="#4A5568" stroke-width="2"/>
+                    <path d="M3 9L21 9" stroke="#4A5568" stroke-width="2"/>
+                    <path d="M9 21L9 9" stroke="#4A5568" stroke-width="2"/>
+                  </svg>
+                </div>
+              <% } %>
+              <h3 class="card-title"><%= resume.name %></h3>
+              <p class="card-subtitle">Last updated: <%= resume.updatedAt %></p>
+            </div>
+            <div class="card-menu" data-resume-id="<%= resume.id %>">⋮</div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Dropdown menus container -->
+<% if (resumes && resumes.length > 0) { %>
+  <% resumes.forEach(function(resume) { %>
+    <div id="actions-dropdown-<%= resume.id %>" class="resume-actions-dropdown">
+      <a href="/resume/edit/<%= resume.id %>" class="action-item">
+        <span class="action-icon">✏️</span> Open
+      </a>
+      <a href="javascript:void(0)" onclick="renameResume('<%= resume.id %>', '<%= resume.name %>')" class="action-item">
+        <span class="action-icon">🔠</span> Rename
+      </a>
+      <a href="javascript:void(0)" onclick="duplicateResume('<%= resume.id %>')" class="action-item">
+        <span class="action-icon">📋</span> Duplicate
+      </a>
+      <% if (resume.is_locked) { %>
+        <a href="javascript:void(0)" onclick="lockResume('<%= resume.id %>', false)" class="action-item">
+          <span class="action-icon">🔓</span> Unlock
+        </a>
+      <% } else { %>
+        <a href="javascript:void(0)" onclick="lockResume('<%= resume.id %>', true)" class="action-item">
+          <span class="action-icon">🔒</span> Lock
+        </a>
+      <% } %>
+      <% if (!resume.is_locked) { %>
+        <a href="javascript:void(0)" onclick="deleteResume('<%= resume.id %>')" class="action-item delete-action">
+          <span class="action-icon">🗑️</span> Delete
+        </a>
+      <% } %>
+    </div>
+  <% }); %>
+<% } %>
+
+<!-- Modal for new resume -->
+<div class="modal" id="resumeModal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="hideModal()">&times;</span>
+    <h3>Create a new Resume</h3>
+    <p>Start building your resume by giving it a name.</p>
+    <input type="text" id="resumeTitleInput" placeholder="Enter resume title" required>
+    <p class="field-help">Tip: you can name the resume referring to the position you're applying for.</p>
+    <div class="modal-actions">
+      <button onclick="createResume()" class="btn btn-primary">Create</button>
+      <button onclick="hideModal()" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .resume-preview-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+  }
+  
+  .resume-actions-dropdown {
+    display: none;
+    position: fixed;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 180px;
+    z-index: 100;
+    padding: 0.5rem 0;
+    border: 1px solid #E2E8F0;
+  }
+  
+  .resume-actions-dropdown.active {
+    display: block;
+  }
+  
+  .delete-action {
+    color: #ff3b30;
+  }
+
+  .card-menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .card-menu:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .existing-resume-card {
+    position: relative;
+  }
+</style>
+
+<script>
+// Show modal for new resume
+function showModal() {
+  const modal = document.getElementById('resumeModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    // Focus on the input field
+    setTimeout(() => {
+      document.getElementById('resumeTitleInput').focus();
+    }, 100);
+  }
+}
+
+// Hide modal
+function hideModal() {
+  const modal = document.getElementById('resumeModal');
+  if (modal) {
+    modal.style.display = 'none';
+    // Clear the input field
+    const titleInput = document.getElementById('resumeTitleInput');
+    if (titleInput) {
+      titleInput.value = '';
+    }
+  }
+}
+
+// Create new resume
+function createResume() {
+  const titleInput = document.getElementById('resumeTitleInput');
+  const title = titleInput ? titleInput.value.trim() : '';
+  
+  if (!title) {
+    alert("Please enter a title for your resume.");
+    return;
+  }
+  
+  fetch('/resume/create', {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ title: title })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Server error: ' + response.status);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success && data.id) {
+      window.location.href = `/resume/edit/${data.id}`;
+    } else {
+      throw new Error('Invalid response from server');
+    }
+  })
+  .catch(error => {
+    console.error('Error creating resume:', error);
+    alert('Failed to create resume. Please try again.');
+  });
+}
+
+// Handle card click to go to edit page
+function openResume(id) {
+  window.location.href = `/resume/edit/${id}`;
+}
+
+// Delete resume
+function deleteResume(id) {
+  if (!id) return;
+  
+  if (!confirm('Are you sure you want to delete this resume? This action cannot be undone.')) {
+    return;
+  }
+  
+  fetch(`/resume/delete/${id}`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to delete resume');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while deleting the resume');
+  });
+}
+
+// Rename resume
+function renameResume(id, currentName) {
+  if (!id) return;
+  
+  const newName = prompt('Enter a new name for your resume:', currentName || '');
+  if (!newName || newName === currentName) return;
+  
+  fetch(`/resume/${id}/rename`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ newTitle: newName })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to rename resume');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while renaming the resume');
+  });
+}
+
+// Duplicate resume
+function duplicateResume(id) {
+  if (!id) return;
+  
+  fetch(`/resume/${id}/duplicate`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to duplicate resume');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while duplicating the resume');
+  });
+}
+
+// Toggle lock status
+function lockResume(id, lock) {
+  if (!id) return;
+  
+  fetch(`/resume/${id}/lock`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ lock })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to update lock status');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while updating lock status');
+  });
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle menu icon clicks for dropdown menus
+  const menuButtons = document.querySelectorAll('.card-menu');
+  menuButtons.forEach(btn => {
+    btn.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const resumeId = this.getAttribute('data-resume-id');
+      const dropdown = document.getElementById(`actions-dropdown-${resumeId}`);
+      
+      // Position the dropdown next to the button
+      if (dropdown) {
+        const rect = this.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+        dropdown.style.left = (rect.left + window.scrollX - 150) + 'px'; // Position to the left of the button
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.resume-actions-dropdown.active').forEach(el => {
+          if (el !== dropdown) {
+            el.classList.remove('active');
+          }
+        });
+        
+        // Toggle this dropdown
+        dropdown.classList.toggle('active');
+      }
+    });
+  });
+
+  // Handle card clicks to open the resume editor
+  const resumeCards = document.querySelectorAll('.existing-resume-card');
+  resumeCards.forEach(card => {
+    card.addEventListener('click', function(event) {
+      // Don't open editor if clicking on the menu
+      if (!event.target.closest('.card-menu')) {
+        const resumeId = this.getAttribute('data-resume-id');
+        openResume(resumeId);
+      }
+    });
+  });
+  
+  // Close dropdowns when clicking elsewhere
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.resume-actions-dropdown.active').forEach(dropdown => {
+      dropdown.classList.remove('active');
+    });
+  });
+  
+  // Prevent dropdown clicks from closing the dropdown
+  document.querySelectorAll('.resume-actions-dropdown').forEach(dropdown => {
+    dropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+  
+  // Modal event listeners
+  const modal = document.getElementById('resumeModal');
+  if (modal) {
+    // Close modal when clicking outside content
+    modal.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        hideModal();
+      }
+    });
+    
+    // Handle Enter key in title input
+    const titleInput = document.getElementById('resumeTitleInput');
+    if (titleInput) {
+      titleInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+          createResume();
+        }
+      });
+    }
+  }
+});
+</script>
+
+<%- include('partials/footer') %>

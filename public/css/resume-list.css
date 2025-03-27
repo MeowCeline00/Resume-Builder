@@ -1,0 +1,155 @@
+/* Resume List Page Styles */
+.resume-list-container {
+  padding: 2rem 0;
+}
+
+.resume-list-title {
+  color: #2d3748;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.resume-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.resume-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.resume-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.new-resume-card {
+  text-decoration: none;
+  border: 2px dashed #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.existing-resume-card {
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+
+.card-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+}
+
+.create-icon, .resume-icon {
+  margin-bottom: 1.5rem;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+/* Resume options button */
+.resume-options {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.options-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+  color: #718096;
+  transition: color 0.2s;
+}
+
+.options-btn:hover {
+  color: #2d3748;
+}
+
+/* Dropdown menu for resume actions */
+.resume-actions-dropdown {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 180px;
+  z-index: 10;
+  padding: 0.5rem 0;
+  border: 1px solid #e2e8f0;
+}
+
+.resume-actions-dropdown.active {
+  display: block;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #4a5568;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+.action-item:hover {
+  background-color: #f7fafc;
+}
+
+.delete-action {
+  color: #ff3b30;
+}
+
+.action-icon {
+  margin-right: 0.75rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .resume-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .resume-card-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* For mobile screens, position dropdown in a better spot */
+  .resume-actions-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 160px;
+  }
+}

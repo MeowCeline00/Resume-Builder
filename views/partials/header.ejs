@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | JiffyCV</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <img src="/img/icons/logo.png" alt="User Icon">
+                </div>
+                <a href="/" class="logo">JiffyCV</a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/" class="<%= title === 'Home' ? 'active' : '' %>">Home</a></li>
+                    <li><a href="/resume" class="<%= title === 'Resumes' || title === 'Resume Builder' || title === 'Edit Resume' || title === 'Preview Resume' || title === 'Create New Resume' ? 'active' : '' %>">Resume</a></li>
+                    <li><a href="/about" class="<%= title === 'About' ? 'active' : '' %>">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
